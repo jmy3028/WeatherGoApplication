@@ -8,6 +8,7 @@
     tools:context="com.practice.jmy3028.gmappracticeapplication.MainActivity">
 
     <EditText
+        android:inputType="text"
         android:id="@+id/aaa_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

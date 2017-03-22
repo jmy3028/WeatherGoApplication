@@ -2,6 +2,8 @@ package com.practice.jmy3028.gmappracticeapplication;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.view.MenuItemCompat;
@@ -13,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LatLng seoul;
 
     private GoogleMap mMap;
+    private WeatherFragment weatherFrg;
     private EditText mEdit;
     private Geocoder geocoder;
     private List<Address> list;
@@ -69,14 +74,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,12));
 
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
-            public boolean onMarkerClick(Marker marker) {
-                Toast.makeText(MainActivity.this, "마커를 클릭하셨습니다.", Toast.LENGTH_SHORT).show();
+            public void onInfoWindowClick(Marker marker) {
+                Intent intent = new Intent(MainActivity.this,FragmentsActivity.class);
+                startActivity(intent);
 
-                return false;
+                Toast.makeText(MainActivity.this, "말풍선을 클릭하셨습니다.", Toast.LENGTH_SHORT).show();
             }
         });
+
+//        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//            @Override
+//            public boolean onMarkerClick(Marker marker) {
+//                Toast.makeText(MainActivity.this, "마커를 클릭하셨습니다.", Toast.LENGTH_SHORT).show();
+//
+//                return false;
+//            }
+//        });
     }
 
     @Override
@@ -116,13 +131,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         switch (item.getItemId()) {
             case R.id.menu_search:
-                reMapReady(mEdit.getText().toString());
-                if(list.size() != 0){
-                    double lat = list.get(0).getLatitude();
-                    double lon = list.get(0).getLongitude();
-                    seoul = new LatLng(lat,lon);
-                    mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul,16));
+                //EditText 공백체크.
+                if(!mEdit.getText().toString().equals("")) {
+                    //만약 공백이 아니면 reMapReady에 입력값 전송.
+                    reMapReady(mEdit.getText().toString());
+                    //reMapReady작업이 끝나고 결과 값을 리턴해주면 그 값이 비어있는지 확인.
+                    if (list.get(0) != null) {
+                        //위도 경도 값 가져와서 지도에 마커 표시하기
+                        double lat = list.get(0).getLatitude();
+                        double lon = list.get(0).getLongitude();
+                        seoul = new LatLng(lat, lon);
+                        mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
+                    } else {
+                        reMapReady(mEdit.getText().toString());
+                    }
+                }else {
+                    Toast.makeText(this, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             case R.id.delete_menu:
