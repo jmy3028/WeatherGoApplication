@@ -1,19 +1,20 @@
 package com.practice.jmy3028.gmappracticeapplication;
 
-import android.app.ActionBar;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
+import com.practice.jmy3028.gmappracticeapplication.fragments.ListFragment;
 import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 
 public class FragmentsActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
     private WeatherFragment weatherFragment;
+    private ListFragment listFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +23,9 @@ public class FragmentsActivity extends AppCompatActivity {
 
 
         viewPager = (ViewPager) findViewById(R.id.frgment_view_pager);
+
+        weatherFragment = new WeatherFragment();
+        listFragment = new ListFragment();
 
 
         FragmentsPagerAdapter pagerAdapter = new FragmentsPagerAdapter(getSupportFragmentManager());
@@ -39,9 +43,9 @@ public class FragmentsActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return weatherFragment = new WeatherFragment();
+                    return weatherFragment;
                 case 1:
-                    return weatherFragment = new WeatherFragment();
+                    return listFragment;
             }
             return null;
         }
