@@ -7,10 +7,10 @@
 
     <item
         android:id="@+id/menu_search"
-        android:actionViewClass="android.support.v7.widget.SearchView"
         android:icon="@android:drawable/ic_menu_search"
         android:title="Item"
-        app:showAsAction="ifRoom" />
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always" />
     <item
         android:id="@+id/delete_menu"
         android:icon="@android:drawable/ic_menu_delete"

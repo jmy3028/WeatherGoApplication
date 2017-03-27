@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -18,20 +21,27 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.practice.jmy3028.gmappracticeapplication.api.GetApi;
+import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
 
 import java.io.IOException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private double seoulLat;
-    private double seoulLon;
+    private static final String TAG = "ffffff";
     private LatLng seoul;
+    private GetApi mGetApi;
+    private WeatherMain result;
 
     private GoogleMap mMap;
     private EditText mEdit;
     private Geocoder geocoder;
     private List<Address> list;
+    private List<WeatherMain> mExampleData;
+
+    private String mSearchData;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         geocoder = new Geocoder(this);
 
-        mEdit = (EditText) findViewById(R.id.aaa_edit);
-
 
     }
 
@@ -53,11 +61,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        seoulLat = 37.541;
-        seoulLon = 126.986;
 
         // Add a marker in Sydney and move the camera
-        seoul = new LatLng(seoulLat, seoulLon);
+        seoul = new LatLng(37.541, 126.986);
         mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 12));
 
@@ -65,10 +71,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
-                startActivity(intent);
+//                intent = new Intent(MainActivity.this, FragmentsActivity.class);
+//                startActivity(intent);
 
-                Toast.makeText(MainActivity.this, "말풍선을 클릭하셨습니다.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, ""+mExampleData, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -78,29 +84,50 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_menu, menu);
 
-//        //검색 기능 활성화 한다.
-//        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-//        //검색 버튼을 가져온다.
-//        MenuItem searchButton = menu.findItem(R.id.menu_search);
-//        //검색버튼을 클릭했을 때 SearchView를 가져온다.
-//        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchButton);
-//        //검색 힌트를 설정한다.
-////        searchView.setQueryHint("주소를 검색해 주세요.");
-//
-//        //SearchView를 검색 가능한 위젯으로 설정한다.
-////        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-//
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                return false;
-//            }
-//        });
+        MenuItem searchItem = menu.findItem(R.id.menu_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //EditText 공백체크.
+                if (!query.equals("")) {
+                    //만약 공백이 아니면 reMapReady에 입력값 전송.
+                    reMapReady(query);
+                    //reMapReady작업이 끝나고 결과 값을 리턴해주면 그 값이 비어있는지 확인.
+                    if (list.get(0) != null) {
+                        //위도 경도 값 가져와서 지도에 마커 표시하기
+                        final double lat = list.get(0).getLatitude();
+                        final double lon = list.get(0).getLongitude();
+                        seoul = new LatLng(lat, lon);
+
+                        mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
+                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                            @Override
+                            public void onInfoWindowClick(Marker marker) {
+                                Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
+                                intent.putExtra("lat", lat);
+                                intent.putExtra("lon", lon);
+                                startActivity(intent);
+                            }
+                        });
+
+                    } else {
+                        reMapReady(query);
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                }
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d("MainActivity", "onQueryTextChange: " + newText);
+                return false;
+            }
+        });
         return true;
 
     }
@@ -108,28 +135,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
-            case R.id.menu_search:
-                //EditText 공백체크.
-                if (!mEdit.getText().toString().equals("")) {
-                    //만약 공백이 아니면 reMapReady에 입력값 전송.
-                    reMapReady(mEdit.getText().toString());
-                    //reMapReady작업이 끝나고 결과 값을 리턴해주면 그 값이 비어있는지 확인.
-                    if (list.get(0) != null) {
-                        //위도 경도 값 가져와서 지도에 마커 표시하기
-                        double lat = list.get(0).getLatitude();
-                        double lon = list.get(0).getLongitude();
-                        seoul = new LatLng(lat, lon);
-                        mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
-                    } else {
-                        reMapReady(mEdit.getText().toString());
-                    }
-                } else {
-                    Toast.makeText(this, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show();
-                }
-                return true;
             case R.id.delete_menu:
                 mMap.clear();
                 return true;
@@ -139,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     public void reMapReady(String city) {
-        list = null;
 
         try {
             list = geocoder.getFromLocationName(

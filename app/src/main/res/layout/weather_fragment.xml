@@ -35,13 +35,15 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/sunrise_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="일출" />
 
             <TextView
+                android:id="@+id/set_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -56,18 +58,20 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/wind_speed_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="풍속" />
 
             <TextView
+                android:id="@+id/wind_direction_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="풍향" />
         </LinearLayout>
 
         <LinearLayout
@@ -77,18 +81,20 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/weather_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="날씨" />
 
             <TextView
+                android:id="@+id/temperatures_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="기온" />
         </LinearLayout>
 
         <LinearLayout
@@ -98,25 +104,28 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/pressure_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="기압" />
 
             <TextView
+                android:id="@+id/humidity_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="습도" />
 
             <TextView
+                android:id="@+id/visibility_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="가시거리" />
 
         </LinearLayout>
 
@@ -130,7 +139,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="일몰" />
+                android:text="Icon Designed by Freepik" />
 
         </LinearLayout>
 

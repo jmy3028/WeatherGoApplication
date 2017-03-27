@@ -6,11 +6,11 @@
     android:orientation="horizontal"
     android:background="@drawable/border">
 
-    <ImageView
-        android:paddingStart="10sp"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        app:srcCompat="?android:attr/findOnPageNextDrawable" />
+    <!--<ImageView-->
+        <!--android:paddingStart="10sp"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="match_parent"-->
+        <!--app:srcCompat="?android:attr/findOnPageNextDrawable" />-->
 
     <TextView
         android:paddingStart="5sp"
