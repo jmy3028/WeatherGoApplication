@@ -14,6 +14,7 @@ import com.practice.jmy3028.gmappracticeapplication.api.RetrofitUtil;
 import com.practice.jmy3028.gmappracticeapplication.fragments.ListFragment;
 import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
+import com.practice.jmy3028.gmappracticeapplication.model2.Example;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ public class FragmentsActivity extends AppCompatActivity {
 
 
     String BASE_APPID = "1de08f4347f09c9540f906a810f95b03";
+    private GetApi mGetApi2;
+    private double mLat;
+    private double mLon;
 
 
     @Override
@@ -41,33 +45,56 @@ public class FragmentsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragments);
 
+        weatherFragment = new WeatherFragment();
+        listFragment = new ListFragment();
 
         viewPager = (ViewPager) findViewById(R.id.frgment_view_pager);
 
-        weatherFragment = new WeatherFragment();
-        listFragment = new ListFragment();
-        FragmentsPagerAdapter pagerAdapter = new FragmentsPagerAdapter(getSupportFragmentManager());
 
-        viewPager.setAdapter(pagerAdapter);
+
 
         intent = getIntent();
-        double mLat = intent.getExtras().getDouble("lat");
-        double mLon = intent.getExtras().getDouble("lon");
+        mLat = intent.getExtras().getDouble("lat");
+        mLon = intent.getExtras().getDouble("lon");
+//        mlatlon(mLat,mLon);
 
         mGetApi = new RetrofitUtil().getUserApi();
-
         Call<WeatherMain> call = mGetApi.latlon(BASE_APPID,
-                mLat,mLon);
+                mLat, mLon);
 
         call.enqueue(new Callback<WeatherMain>() {
             @Override
             public void onResponse(Call<WeatherMain> call, Response<WeatherMain> response) {
-                WeatherMain result = response.body();
-                Toast.makeText(FragmentsActivity.this, ""+ result, Toast.LENGTH_SHORT).show();
-                WeatherFragment.newInstance(result);
+                final WeatherMain result = response.body();
+
+                mGetApi2 = new RetrofitUtil().getUserApi();
+                Call<Example> call2 = mGetApi2.latlon2(BASE_APPID,
+                        mLat, mLon);
+
+                call2.enqueue(new Callback<Example>() {
+                    @Override
+                    public void onResponse(Call<Example> call,
+                                           Response<Example> response) {
+                        Example result2 = response.body();
+
+
+                        listFragment = ListFragment.newInstance(result2);
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Example> call, Throwable t) {
+                        Toast.makeText(FragmentsActivity.this, "실패", Toast.LENGTH_SHORT).show();
+                    }
+
+                });
+
+                weatherFragment = WeatherFragment.newInstance(result);
+                FragmentsPagerAdapter pagerAdapter = new FragmentsPagerAdapter(getSupportFragmentManager());
+                viewPager.setAdapter(pagerAdapter);
 
             }
-
 
             @Override
             public void onFailure(Call<WeatherMain> call, Throwable throwable) {
@@ -97,6 +124,13 @@ public class FragmentsActivity extends AppCompatActivity {
         public int getCount() {
             return 2;
         }
+
+    }
+
+    public void mlatlon(double mLat, double mLon){
+
+
+
 
     }
 }

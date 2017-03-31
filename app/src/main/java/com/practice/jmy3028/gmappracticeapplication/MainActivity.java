@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 12));
 
-
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //만약 공백이 아니면 reMapReady에 입력값 전송.
                     reMapReady(query);
                     //reMapReady작업이 끝나고 결과 값을 리턴해주면 그 값이 비어있는지 확인.
-                    if (list.get(0) != null) {
+                    if (list.size() != 0) {
                         //위도 경도 값 가져와서 지도에 마커 표시하기
                         final double lat = list.get(0).getLatitude();
                         final double lon = list.get(0).getLongitude();
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         });
 
                     } else {
-                        reMapReady(query);
+//                        reMapReady(query);
                     }
                 } else {
                     Toast.makeText(MainActivity.this, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show();
@@ -151,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     city, // 지역 이름
                     10); // 읽을 개수
         } catch (IOException e) {
-            e.printStackTrace();
+            Toast.makeText(this, "입력 오류", Toast.LENGTH_SHORT).show();
             Log.e("test", "입출력 오류 - 서버에서 주소변환시 에러발생");
         }
 

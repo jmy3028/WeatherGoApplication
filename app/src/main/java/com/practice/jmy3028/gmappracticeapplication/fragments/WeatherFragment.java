@@ -1,5 +1,6 @@
 package com.practice.jmy3028.gmappracticeapplication.fragments;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.practice.jmy3028.gmappracticeapplication.R;
+import com.practice.jmy3028.gmappracticeapplication.databinding.WeatherFragmentBinding;
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
 
 import java.io.Serializable;
@@ -23,6 +25,8 @@ import java.util.List;
 public class WeatherFragment extends Fragment {
 
 
+    private WeatherFragmentBinding mBinding;
+
     //날씨에 대한 모든 데이터들을 이쪽에서 받기
     public static WeatherFragment newInstance(WeatherMain  data) {
         WeatherFragment fragment = new WeatherFragment();
@@ -35,7 +39,11 @@ public class WeatherFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.weather_fragment, container, false);
+        mBinding = DataBindingUtil.inflate(inflater,
+                R.layout.weather_fragment,
+                container,false);
+
+        return mBinding.getRoot();
 
 
     }
@@ -44,12 +52,18 @@ public class WeatherFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TextView sunrisetext = (TextView) view.findViewById(R.id.sunrise_text);
 
-        Bundle bundle = getArguments();
-        WeatherMain data = (WeatherMain) bundle.getSerializable("data");
 
-        sunrisetext.setText(String.valueOf(data.getSys().getSunrise()));
+        WeatherMain mData = (WeatherMain) getArguments().getSerializable("data");
 
+        mBinding.sunriseText.setText(String.valueOf(mData.getSys().getSunrise()));
+        mBinding.setText.setText(String.valueOf(mData.getSys().getSunset()));
+        mBinding.windSpeedText.setText(String.valueOf(mData.getWind().getSpeed()));
+        mBinding.windDirText.setText(String.valueOf(mData.getWind().getDeg()));
+        mBinding.weatherText.setText(String.valueOf(mData.getWeather().get(0).getMain()));
+        mBinding.tempText.setText(String.valueOf(mData.getMain().getTemp()));
+        mBinding.pressureText.setText(String.valueOf(mData.getMain().getPressure()));
+        mBinding.humidityText.setText(String.valueOf(mData.getMain().getHumidity()));
+        mBinding.visibilityText.setText(String.valueOf(mData.getVisibility()));
     }
 }

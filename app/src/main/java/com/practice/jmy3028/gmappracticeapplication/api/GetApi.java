@@ -2,6 +2,8 @@ package com.practice.jmy3028.gmappracticeapplication.api;
 
 
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
+import com.practice.jmy3028.gmappracticeapplication.model2.Example;
+import com.practice.jmy3028.gmappracticeapplication.model2.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -22,5 +24,9 @@ public interface GetApi {
                              @Query("lat") double lat,
                              @Query("lon") double lon);
 
+    @GET("forecast")
+    Call<Example> latlon2(@Query("APPID") String APPID,
+                          @Query("lat") double lat,
+                          @Query("lon") double lon);
 
 }
