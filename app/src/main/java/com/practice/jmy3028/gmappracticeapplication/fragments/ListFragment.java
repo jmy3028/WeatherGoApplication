@@ -49,7 +49,8 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Example example = (Example) getArguments().getSerializable("data2");
-
+        DtModel dtModel = example.getList().get(0).getDt();
+        mDtData.add();
 
 
         ExpandableListView listView = (ExpandableListView) view.findViewById(R.id.expanded_list);
