@@ -5,24 +5,24 @@ package com.practice.jmy3028.gmappracticeapplication;
  */
 
 public class DtModel {
-    private double mDtdata;
+    private String mDtdata;
 
-    public DtModel(double mDtdata) {
+    public DtModel(String mDtdata) {
         this.mDtdata = mDtdata;
     }
 
-    public double getmDtdata() {
+    public String getmDtdata() {
         return mDtdata;
     }
 
-    public void setmDtdata(double mDtdata) {
+    public void setmDtdata(String mDtdata) {
         this.mDtdata = mDtdata;
     }
 
     @Override
     public String toString() {
         return "DtModel{" +
-                "mDtdata=" + mDtdata +
+                "mDtdata='" + mDtdata + '\'' +
                 '}';
     }
 }

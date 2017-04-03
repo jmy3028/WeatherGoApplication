@@ -21,17 +21,12 @@ import java.util.List;
 
 public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
-    private Context context;
-    private List<DtModel> mParentList;
-    private List<ListModel> mChildList;
-    private HashMap<DtModel,List<ListModel>> mChildHashMap;
+    private List<String> mParentList;
+    private HashMap<String,List<ListModel>> mChildHashMap;
 
-    public ListFragmentAdapter(Context context, List<DtModel> mParentList,
-                               List<ListModel> mChildList, HashMap<DtModel,
+    public ListFragmentAdapter( List<String> mParentList,HashMap<String,
                                 List<ListModel>> mChildHashMap) {
-        this.context = context;
         this.mParentList = mParentList;
-        this.mChildList = mChildList;
         this.mChildHashMap = mChildHashMap;
     }
 
@@ -42,7 +37,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mChildList.size();
+        return mChildHashMap.size();
     }
 
     @Override
@@ -52,7 +47,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mChildList.get(childPosition);
+        return mChildHashMap.get(childPosition);
     }
 
     @Override
@@ -77,7 +72,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
         if(convertView == null){
             groupViewHolder = new GroupViewHolder();
 
-            convertView = LayoutInflater.from(context)
+            convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_group,parent,false);
 
             TextView dtTextView = (TextView) convertView.findViewById(R.id.dt_text);
@@ -90,9 +85,9 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
             groupViewHolder = (GroupViewHolder) convertView.getTag();
         }
 
-        DtModel dtModel = mParentList.get(groupPosition);
+        String dtModel = mParentList.get(groupPosition);
 
-        groupViewHolder.dtTextView.setText(dtModel.getmDtdata());
+        groupViewHolder.dtTextView.setText(dtModel);
 
 
         return convertView;
@@ -105,7 +100,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
         if(convertView == null){
             childViewHolder = new ChildViewHolder();
 
-            convertView = LayoutInflater.from(context)
+            convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_child,parent,false);
 
             ImageView mWeatherImage = (ImageView) convertView.findViewById(R.id.weather_image);
@@ -132,7 +127,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
             childViewHolder = (ChildViewHolder) convertView.getTag();
         }
 
-        ListModel listModel = mChildList.get(groupPosition);
+        ListModel listModel = (ListModel) mChildHashMap.get(groupPosition);
 
         //이미지 받아오기
 //        childViewHolder.mWeatherImage.;
@@ -140,10 +135,10 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
         //데이터값을 넣어서 화면에 뿌려주는 공간
         childViewHolder.mWeatherText.setText(listModel.getmWeather());
         childViewHolder.mTempText.setText(String.valueOf(listModel.getmTemp()));
-        childViewHolder.mWindSpeedText.setText(listModel.getmWindSpeed());
+        childViewHolder.mWindSpeedText.setText(String.valueOf(listModel.getmWindSpeed()));
         childViewHolder.mWindDirText.setText(String.valueOf(listModel.getmWindDir()));
-        childViewHolder.mPressureText.setText(listModel.getmPressure());
-        childViewHolder.mHumidityText.setText(listModel.getmHumidity());
+        childViewHolder.mPressureText.setText(String.valueOf(listModel.getmPressure()));
+        childViewHolder.mHumidityText.setText(String.valueOf(listModel.getmHumidity()));
 
         return convertView;
 

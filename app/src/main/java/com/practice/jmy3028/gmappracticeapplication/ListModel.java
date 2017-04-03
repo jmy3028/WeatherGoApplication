@@ -1,5 +1,9 @@
 package com.practice.jmy3028.gmappracticeapplication;
 
+import com.practice.jmy3028.gmappracticeapplication.model2.Weather;
+
+import java.util.List;
+
 /**
  * Created by jmy3028 on 17. 3. 31.
  */
@@ -8,14 +12,14 @@ public class ListModel {
 
     private String mWeather;
     private double mTemp;
-    private String mWindSpeed;
-    private float mWindDir;
-    private String mPressure;
-    private String mHumidity;
+    private double mWindSpeed;
+    private double mWindDir;
+    private double mPressure;
+    private double mHumidity;
 
     public ListModel(String mWeather, double mTemp,
-                     String mWindSpeed, float mWindDir,
-                     String mPressure, String mHumidity) {
+                     double mWindSpeed, double mWindDir,
+                     double mPressure, double mHumidity) {
         this.mWeather = mWeather;
         this.mTemp = mTemp;
         this.mWindSpeed = mWindSpeed;
@@ -40,35 +44,35 @@ public class ListModel {
         this.mTemp = mTemp;
     }
 
-    public String getmWindSpeed() {
+    public double getmWindSpeed() {
         return mWindSpeed;
     }
 
-    public void setmWindSpeed(String mWindSpeed) {
+    public void setmWindSpeed(double mWindSpeed) {
         this.mWindSpeed = mWindSpeed;
     }
 
-    public float getmWindDir() {
+    public double getmWindDir() {
         return mWindDir;
     }
 
-    public void setmWindDir(float mWindDir) {
+    public void setmWindDir(double mWindDir) {
         this.mWindDir = mWindDir;
     }
 
-    public String getmPressure() {
+    public double getmPressure() {
         return mPressure;
     }
 
-    public void setmPressure(String mPressure) {
+    public void setmPressure(double mPressure) {
         this.mPressure = mPressure;
     }
 
-    public String getmHumidity() {
+    public double getmHumidity() {
         return mHumidity;
     }
 
-    public void setmHumidity(String mHumidity) {
+    public void setmHumidity(double mHumidity) {
         this.mHumidity = mHumidity;
     }
 
@@ -77,10 +81,10 @@ public class ListModel {
         return "ListModel{" +
                 "mWeather='" + mWeather + '\'' +
                 ", mTemp=" + mTemp +
-                ", mWindSpeed='" + mWindSpeed + '\'' +
+                ", mWindSpeed=" + mWindSpeed +
                 ", mWindDir=" + mWindDir +
-                ", mPressure='" + mPressure + '\'' +
-                ", mHumidity='" + mHumidity + '\'' +
+                ", mPressure=" + mPressure +
+                ", mHumidity=" + mHumidity +
                 '}';
     }
 }

@@ -23,9 +23,6 @@ public class List implements Serializable{
     @SerializedName("wind")
     @Expose
     private Wind wind;
-    @SerializedName("rain")
-    @Expose
-    private Rain rain;
     @SerializedName("sys")
     @Expose
     private Sys sys;
@@ -89,11 +86,4 @@ public class List implements Serializable{
         this.dtTxt = dtTxt;
     }
 
-    public Rain getRain() {
-        return rain;
-    }
-
-    public void setRain(Rain rain) {
-        this.rain = rain;
-    }
 }

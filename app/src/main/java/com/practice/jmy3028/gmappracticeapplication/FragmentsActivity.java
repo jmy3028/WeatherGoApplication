@@ -63,44 +63,41 @@ public class FragmentsActivity extends AppCompatActivity {
                 mLat, mLon);
 
         call.enqueue(new Callback<WeatherMain>() {
+
             @Override
             public void onResponse(Call<WeatherMain> call, Response<WeatherMain> response) {
                 final WeatherMain result = response.body();
-
-                mGetApi2 = new RetrofitUtil().getUserApi();
-                Call<Example> call2 = mGetApi2.latlon2(BASE_APPID,
-                        mLat, mLon);
-
-                call2.enqueue(new Callback<Example>() {
-                    @Override
-                    public void onResponse(Call<Example> call,
-                                           Response<Example> response) {
-                        Example result2 = response.body();
-
-
-                        listFragment = ListFragment.newInstance(result2);
-
-
-                    }
-
-                    @Override
-                    public void onFailure(Call<Example> call, Throwable t) {
-                        Toast.makeText(FragmentsActivity.this, "실패", Toast.LENGTH_SHORT).show();
-                    }
-
-                });
-
                 weatherFragment = WeatherFragment.newInstance(result);
-                FragmentsPagerAdapter pagerAdapter = new FragmentsPagerAdapter(getSupportFragmentManager());
-                viewPager.setAdapter(pagerAdapter);
 
             }
 
             @Override
             public void onFailure(Call<WeatherMain> call, Throwable throwable) {
-                Toast.makeText(FragmentsActivity.this,"실패", Toast.LENGTH_LONG).show();
             }
         });
+
+//                mGetApi2 = new RetrofitUtil().getUserApi();
+        Call<Example> call2 = mGetApi.latlon2(BASE_APPID,
+                mLat, mLon);
+
+        call2.enqueue(new Callback<Example>() {
+            @Override
+            public void onResponse(Call<Example> call,
+                                   Response<Example> response) {
+                final Example result2 = response.body();
+                listFragment = ListFragment.newInstance(result2);
+                FragmentsPagerAdapter pagerAdapter = new FragmentsPagerAdapter(getSupportFragmentManager());
+                viewPager.setAdapter(pagerAdapter);
+            }
+
+            @Override
+            public void onFailure(Call<Example> call, Throwable t) {
+                Toast.makeText(FragmentsActivity.this, "실패", Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+
     }
 
     private class FragmentsPagerAdapter extends FragmentPagerAdapter {

@@ -16,6 +16,7 @@ import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
 import com.practice.jmy3028.gmappracticeapplication.model2.Example;
 import com.practice.jmy3028.gmappracticeapplication.model2.List;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -24,16 +25,19 @@ import java.util.HashMap;
 
 public class ListFragment extends Fragment {
 
-    private java.util.List<DtModel> mDtData;
+    private java.util.List<String> mDtData;
     private java.util.List<ListModel> mListData;
-    private HashMap<DtModel, java.util.List<ListModel>> mGroupData;
+    private HashMap<String, java.util.List<ListModel>> mGroupData;
+    private String mResult;
+    private ListFragmentAdapter mAdapter;
+    private ExpandableListView mListView;
 
 
     //날씨에 대한 모든 데이터들을 이쪽에서 받기
     public static ListFragment newInstance(Example data) {
         ListFragment fragment = new ListFragment();
         Bundle bundle = new Bundle();
-        bundle.putSerializable("data2",data);
+        bundle.putSerializable("data",data);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -48,14 +52,65 @@ public class ListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Example example = (Example) getArguments().getSerializable("data2");
-        DtModel dtModel = example.getList().get(0).getDt();
-        mDtData.add();
+
+        Bundle bundle = getArguments();
+        final Example example = (Example) bundle.getSerializable("data");
+        mDtData = new ArrayList<>();
+        for (int i = 0; i < example.getList().size(); i++) {
+            mResult = example.getList().get(i).getDtTxt();
+            mDtData.add(mResult);
+
+            mListData = new ArrayList<>();
+            mListData.add(new ListModel(example.getList().get(i).getWeather().get(0).getMain(),
+                    example.getList().get(i).getMain().getTemp(),
+                    example.getList().get(i).getWind().getSpeed(),
+                    example.getList().get(i).getWind().getDeg(),
+                    example.getList().get(i).getMain().getPressure(),
+                    example.getList().get(i).getMain().getHumidity()));
+        }
 
 
-        ExpandableListView listView = (ExpandableListView) view.findViewById(R.id.expanded_list);
-        ListFragmentAdapter adapter = new ListFragmentAdapter();
 
-        listView.setAdapter(adapter);
+
+        mGroupData = new HashMap<>();
+        mGroupData.put(mResult,mListData);
+
+
+        mListView = (ExpandableListView) view.findViewById(R.id.expanded_list);
+        mAdapter = new ListFragmentAdapter(mDtData,mGroupData);
+
+        mListView.setAdapter(mAdapter);
+        mListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                //그룹이 열릴때
+
+                int groupCount = mAdapter.getGroupCount();
+
+
+                // 한 그룹을 클릭하면 나머지 그룹들은 닫힌다.
+                for (int i = 0; i < groupCount; i++) {
+                    if (!(i == groupPosition))
+                        mListView.collapseGroup(i);
+                }
+
+
+            }
+        });
+
+        mListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+            //그룹이 닫힐때
+            }
+        });
+
+        mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                //차일드가 선택 되었을 때
+                return false;
+            }
+        });
     }
 }
