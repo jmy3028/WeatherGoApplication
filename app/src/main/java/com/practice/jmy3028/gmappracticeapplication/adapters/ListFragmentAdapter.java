@@ -22,12 +22,9 @@ import java.util.List;
 public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     private List<String> mParentList;
-    private List<List<ListModel>> mChildHashMap;
 
-    public ListFragmentAdapter( List<String> mParentList,List<
-                                List<ListModel>> mChildHashMap) {
+    public ListFragmentAdapter( List<com.practice.jmy3028.gmappracticeapplication.model2.List> mParentList) {
         this.mParentList = mParentList;
-        this.mChildHashMap = mChildHashMap;
     }
 
     @Override
@@ -37,7 +34,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mChildHashMap.size();
+        return mParentList.size();
     }
 
     @Override
@@ -47,7 +44,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mChildHashMap.get(childPosition);
+        return mParentList.get(childPosition);
     }
 
     @Override
@@ -133,12 +130,12 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 //        childViewHolder.mWeatherImage.;
 
         //데이터값을 넣어서 화면에 뿌려주는 공간
-        childViewHolder.mWeatherText.setText(listModel.get(groupPosition).getmWeather());
-        childViewHolder.mTempText.setText(String.valueOf(listModel.get(groupPosition).getmTemp()));
-        childViewHolder.mWindSpeedText.setText(String.valueOf(listModel.get(groupPosition).getmWindSpeed()));
-        childViewHolder.mWindDirText.setText(String.valueOf(listModel.get(groupPosition).getmWindDir()));
-        childViewHolder.mPressureText.setText(String.valueOf(listModel.get(groupPosition).getmPressure()));
-        childViewHolder.mHumidityText.setText(String.valueOf(listModel.get(groupPosition).getmHumidity()));
+        childViewHolder.mWeatherText.setText(mChildHashMap.get(groupPosition).);
+        childViewHolder.mTempText.setText(String.valueOf(listModel.get(0).getmTemp()));
+        childViewHolder.mWindSpeedText.setText(String.valueOf(listModel.get(0).getmWindSpeed()));
+        childViewHolder.mWindDirText.setText(String.valueOf(listModel.get(0).getmWindDir()));
+        childViewHolder.mPressureText.setText(String.valueOf(listModel.get(0).getmPressure()));
+        childViewHolder.mHumidityText.setText(String.valueOf(listModel.get(0).getmHumidity()));
 
         return convertView;
 

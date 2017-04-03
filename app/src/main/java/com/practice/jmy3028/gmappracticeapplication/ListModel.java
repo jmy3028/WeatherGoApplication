@@ -10,6 +10,7 @@ import java.util.List;
 
 public class ListModel {
 
+    private String mDtdata;
 
     private String mWeather;
     private double mTemp;
@@ -18,9 +19,10 @@ public class ListModel {
     private double mPressure;
     private double mHumidity;
 
-    public ListModel( String mWeather,
+    public ListModel(String mDtdata, String mWeather,
                      double mTemp, double mWindSpeed, double mWindDir,
                      double mPressure, double mHumidity) {
+        this.mDtdata = mDtdata;
         this.mWeather = mWeather;
         this.mTemp = mTemp;
         this.mWindSpeed = mWindSpeed;
@@ -29,6 +31,13 @@ public class ListModel {
         this.mHumidity = mHumidity;
     }
 
+    public String getmDtdata() {
+        return mDtdata;
+    }
+
+    public void setmDtdata(String mDtdata) {
+        this.mDtdata = mDtdata;
+    }
 
     public String getmWeather() {
         return mWeather;
@@ -81,7 +90,8 @@ public class ListModel {
     @Override
     public String toString() {
         return "ListModel{" +
-                "mWeather='" + mWeather + '\'' +
+                "mDtdata='" + mDtdata + '\'' +
+                ", mWeather='" + mWeather + '\'' +
                 ", mTemp=" + mTemp +
                 ", mWindSpeed=" + mWindSpeed +
                 ", mWindDir=" + mWindDir +

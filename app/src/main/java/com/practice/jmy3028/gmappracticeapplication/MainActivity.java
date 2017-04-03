@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //만약 공백이 아니면 reMapReady에 입력값 전송.
                     reMapReady(query);
                     //reMapReady작업이 끝나고 결과 값을 리턴해주면 그 값이 비어있는지 확인.
-                    if (list.size() != 0) {
+                    if (list != null) {
                         //위도 경도 값 가져와서 지도에 마커 표시하기
                         final double lat = list.get(0).getLatitude();
                         final double lon = list.get(0).getLongitude();
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         });
 
                     } else {
-//                        reMapReady(query);
+                        reMapReady(query);
                     }
                 } else {
                     Toast.makeText(MainActivity.this, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show();

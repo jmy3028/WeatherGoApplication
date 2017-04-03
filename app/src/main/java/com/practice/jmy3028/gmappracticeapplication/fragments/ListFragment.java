@@ -25,12 +25,13 @@ import java.util.HashMap;
 
 public class ListFragment extends Fragment {
 
-    private java.util.List<String> mDtData;
+    private java.util.List<List> mDtData;
     private java.util.List<ListModel> mListData;
     private java.util.List<java.util.List<ListModel>> mGroupData;
     private String mResult;
     private ListFragmentAdapter mAdapter;
     private ExpandableListView mListView;
+    private ListModel listModel;
 
 
     //날씨에 대한 모든 데이터들을 이쪽에서 받기
@@ -54,31 +55,11 @@ public class ListFragment extends Fragment {
 
 
         Bundle bundle = getArguments();
-        final Example example = (Example) bundle.getSerializable("data");
-        mDtData = new ArrayList<>();
-        mListData = new ArrayList<>();
-        mGroupData = new ArrayList<>();
-        for (int i = 0; i < example.getList().size(); i++) {
-            mResult = example.getList().get(i).getDtTxt();
-            mDtData.add(mResult);
-
-            mListData.add(new ListModel(example.getList().get(i).getWeather().get(0).getMain(),
-                    example.getList().get(i).getMain().getTemp(),
-                    example.getList().get(i).getWind().getSpeed(),
-                    example.getList().get(i).getWind().getDeg(),
-                    example.getList().get(i).getMain().getPressure(),
-                    example.getList().get(i).getMain().getHumidity()));
-
-            mGroupData.add(mListData);
-        }
-
-
-
-
+        mDtData = (ArrayList<List>) bundle.getSerializable("data");
 
 
         mListView = (ExpandableListView) view.findViewById(R.id.expanded_list);
-        mAdapter = new ListFragmentAdapter(mDtData,mGroupData);
+        mAdapter = new ListFragmentAdapter(mDtData);
 
         mListView.setAdapter(mAdapter);
         mListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
