@@ -27,7 +27,7 @@ public class ListFragment extends Fragment {
 
     private java.util.List<String> mDtData;
     private java.util.List<ListModel> mListData;
-    private HashMap<String, java.util.List<ListModel>> mGroupData;
+    private java.util.List<java.util.List<ListModel>> mGroupData;
     private String mResult;
     private ListFragmentAdapter mAdapter;
     private ExpandableListView mListView;
@@ -56,24 +56,25 @@ public class ListFragment extends Fragment {
         Bundle bundle = getArguments();
         final Example example = (Example) bundle.getSerializable("data");
         mDtData = new ArrayList<>();
+        mListData = new ArrayList<>();
+        mGroupData = new ArrayList<>();
         for (int i = 0; i < example.getList().size(); i++) {
             mResult = example.getList().get(i).getDtTxt();
             mDtData.add(mResult);
 
-            mListData = new ArrayList<>();
             mListData.add(new ListModel(example.getList().get(i).getWeather().get(0).getMain(),
                     example.getList().get(i).getMain().getTemp(),
                     example.getList().get(i).getWind().getSpeed(),
                     example.getList().get(i).getWind().getDeg(),
                     example.getList().get(i).getMain().getPressure(),
                     example.getList().get(i).getMain().getHumidity()));
+
+            mGroupData.add(mListData);
         }
 
 
 
 
-        mGroupData = new HashMap<>();
-        mGroupData.put(mResult,mListData);
 
 
         mListView = (ExpandableListView) view.findViewById(R.id.expanded_list);
@@ -110,6 +111,18 @@ public class ListFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 //차일드가 선택 되었을 때
                 return false;
+            }
+        });
+        mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                int groupCount = (int) parent.getExpandableListAdapter().getGroupCount();
+                int childCount = (int) parent.getExpandableListAdapter().getChildrenCount(groupPosition);
+
+
+
+                return false;
+
             }
         });
     }

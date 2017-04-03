@@ -1,6 +1,8 @@
 package com.practice.jmy3028.gmappracticeapplication;
 
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -49,6 +51,7 @@ public class FragmentsActivity extends AppCompatActivity {
         listFragment = new ListFragment();
 
         viewPager = (ViewPager) findViewById(R.id.frgment_view_pager);
+
 
 
 

@@ -22,9 +22,9 @@ import java.util.List;
 public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     private List<String> mParentList;
-    private HashMap<String,List<ListModel>> mChildHashMap;
+    private List<List<ListModel>> mChildHashMap;
 
-    public ListFragmentAdapter( List<String> mParentList,HashMap<String,
+    public ListFragmentAdapter( List<String> mParentList,List<
                                 List<ListModel>> mChildHashMap) {
         this.mParentList = mParentList;
         this.mChildHashMap = mChildHashMap;
@@ -127,18 +127,18 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
             childViewHolder = (ChildViewHolder) convertView.getTag();
         }
 
-        ListModel listModel = (ListModel) mChildHashMap.get(groupPosition);
+        List<ListModel> listModel = mChildHashMap.get(groupPosition);
 
         //이미지 받아오기
 //        childViewHolder.mWeatherImage.;
 
         //데이터값을 넣어서 화면에 뿌려주는 공간
-        childViewHolder.mWeatherText.setText(listModel.getmWeather());
-        childViewHolder.mTempText.setText(String.valueOf(listModel.getmTemp()));
-        childViewHolder.mWindSpeedText.setText(String.valueOf(listModel.getmWindSpeed()));
-        childViewHolder.mWindDirText.setText(String.valueOf(listModel.getmWindDir()));
-        childViewHolder.mPressureText.setText(String.valueOf(listModel.getmPressure()));
-        childViewHolder.mHumidityText.setText(String.valueOf(listModel.getmHumidity()));
+        childViewHolder.mWeatherText.setText(listModel.get(groupPosition).getmWeather());
+        childViewHolder.mTempText.setText(String.valueOf(listModel.get(groupPosition).getmTemp()));
+        childViewHolder.mWindSpeedText.setText(String.valueOf(listModel.get(groupPosition).getmWindSpeed()));
+        childViewHolder.mWindDirText.setText(String.valueOf(listModel.get(groupPosition).getmWindDir()));
+        childViewHolder.mPressureText.setText(String.valueOf(listModel.get(groupPosition).getmPressure()));
+        childViewHolder.mHumidityText.setText(String.valueOf(listModel.get(groupPosition).getmHumidity()));
 
         return convertView;
 
