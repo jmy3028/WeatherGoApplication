@@ -55,7 +55,8 @@ public class ListFragment extends Fragment {
 
 
         Bundle bundle = getArguments();
-        mDtData = (ArrayList<List>) bundle.getSerializable("data");
+        Example example = (Example) bundle.getSerializable("data");
+        mDtData = example.getList();
 
 
         mListView = (ExpandableListView) view.findViewById(R.id.expanded_list);
