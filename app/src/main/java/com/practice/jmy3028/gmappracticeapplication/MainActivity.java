@@ -22,10 +22,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.practice.jmy3028.gmappracticeapplication.api.GetApi;
+import com.practice.jmy3028.gmappracticeapplication.api.RetrofitUtil;
+import com.practice.jmy3028.gmappracticeapplication.fragments.ListFragment;
+import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
+import com.practice.jmy3028.gmappracticeapplication.model2.Example;
 
 import java.io.IOException;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -67,16 +75,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 12));
 
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onInfoWindowClick(Marker marker) {
-//                intent = new Intent(MainActivity.this, FragmentsActivity.class);
-//                startActivity(intent);
-
-//                Toast.makeText(MainActivity.this, ""+mExampleData, Toast.LENGTH_SHORT).show();
+            public void onMapLongClick(LatLng latLng) {
+                mMap.addMarker(new MarkerOptions().position(latLng)
+                        .title(String.format("%.3f , %.3f", latLng.latitude, latLng.longitude)));
             }
         });
-
     }
 
     @Override
@@ -97,10 +102,47 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         //위도 경도 값 가져와서 지도에 마커 표시하기
                         final double lat = list.get(0).getLatitude();
                         final double lon = list.get(0).getLongitude();
+
+
+                        //retrofitUtil을 통해서 api 연결
+                        mGetApi = new RetrofitUtil().getUserApi();
+
+                        //첫번째 fragment화면에 데이터를 뿌려주기 위해 첫번째 Call을 함.
+                        Call<WeatherMain> call = mGetApi.latlon(mGetApi.BASE_APPID,
+                                lat, lon);
+                        call.enqueue(new Callback<WeatherMain>() {
+                            @Override
+                            public void onResponse(Call<WeatherMain> call, Response<WeatherMain> response) {
+                                final WeatherMain result = response.body();
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<WeatherMain> call, Throwable throwable) {
+                            }
+                        });
+
+                        //두번째 fragment화면에 데이터를 뿌려주기 위해 두번째 Call을 함.
+                        Call<Example> call2 = mGetApi.latlon2(mGetApi.BASE_APPID,
+                                lat, lon);
+                        call2.enqueue(new Callback<Example>() {
+                            @Override
+                            public void onResponse(Call<Example> call,
+                                                   Response<Example> response) {
+                                final Example result2 = response.body();
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<Example> call, Throwable t) {
+                            }
+                        });
+
                         seoul = new LatLng(lat, lon);
 
                         mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
+
                         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                             @Override
                             public void onInfoWindowClick(Marker marker) {
@@ -130,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return true;
 
     }
+
+
 
 
     @Override

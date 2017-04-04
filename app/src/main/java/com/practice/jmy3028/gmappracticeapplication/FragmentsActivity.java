@@ -36,12 +36,6 @@ public class FragmentsActivity extends AppCompatActivity {
     private List<WeatherFragment> mData;
 
 
-    String BASE_APPID = "1de08f4347f09c9540f906a810f95b03";
-    private GetApi mGetApi2;
-    private double mLat;
-    private double mLon;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,54 +49,22 @@ public class FragmentsActivity extends AppCompatActivity {
 
 
 
-
+        //메인엑티비티에서 위도,경도 값 받아오기
         intent = getIntent();
-        mLat = intent.getExtras().getDouble("lat");
-        mLon = intent.getExtras().getDouble("lon");
-//        mlatlon(mLat,mLon);
 
-        mGetApi = new RetrofitUtil().getUserApi();
-        Call<WeatherMain> call = mGetApi.latlon(BASE_APPID,
-                mLat, mLon);
 
-        call.enqueue(new Callback<WeatherMain>() {
 
-            @Override
-            public void onResponse(Call<WeatherMain> call, Response<WeatherMain> response) {
-                final WeatherMain result = response.body();
-                weatherFragment = WeatherFragment.newInstance(result);
+        weatherFragment = WeatherFragment.newInstance(result);
 
-            }
+        listFragment = ListFragment.newInstance(result2);
+        FragmentsActivity.FragmentsPagerAdapter pagerAdapter = new FragmentsActivity.FragmentsPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(pagerAdapter);
 
-            @Override
-            public void onFailure(Call<WeatherMain> call, Throwable throwable) {
-            }
-        });
-
-//                mGetApi2 = new RetrofitUtil().getUserApi();
-        Call<Example> call2 = mGetApi.latlon2(BASE_APPID,
-                mLat, mLon);
-
-        call2.enqueue(new Callback<Example>() {
-            @Override
-            public void onResponse(Call<Example> call,
-                                   Response<Example> response) {
-                final Example result2 = response.body();
-                listFragment = ListFragment.newInstance(result2);
-                FragmentsPagerAdapter pagerAdapter = new FragmentsPagerAdapter(getSupportFragmentManager());
-                viewPager.setAdapter(pagerAdapter);
-            }
-
-            @Override
-            public void onFailure(Call<Example> call, Throwable t) {
-                Toast.makeText(FragmentsActivity.this, "실패", Toast.LENGTH_SHORT).show();
-            }
-
-        });
 
 
     }
 
+    //PagerView를 활용해서 두개의 fragment 를 분할 해서 표현함.
     private class FragmentsPagerAdapter extends FragmentPagerAdapter {
 
         public FragmentsPagerAdapter(FragmentManager fm) {
@@ -124,13 +86,6 @@ public class FragmentsActivity extends AppCompatActivity {
         public int getCount() {
             return 2;
         }
-
     }
 
-    public void mlatlon(double mLat, double mLon){
-
-
-
-
-    }
 }

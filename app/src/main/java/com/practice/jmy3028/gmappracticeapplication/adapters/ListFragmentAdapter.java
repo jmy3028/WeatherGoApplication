@@ -22,6 +22,7 @@ import java.util.List;
 public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     private List<com.practice.jmy3028.gmappracticeapplication.model2.List> mParentList;
+    private com.practice.jmy3028.gmappracticeapplication.model2.List mList;
 
     public ListFragmentAdapter( List<com.practice.jmy3028.gmappracticeapplication.model2.List> mParentList) {
         this.mParentList = mParentList;
@@ -124,18 +125,20 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
             childViewHolder = (ChildViewHolder) convertView.getTag();
         }
 
-        com.practice.jmy3028.gmappracticeapplication.model2.List list = mParentList.get(groupPosition);
+        mList = mParentList.get(groupPosition);
+
+        String weather = getWeather(mList.getWeather().get(0).getIcon());
 
         //이미지 받아오기
 //        childViewHolder.mWeatherImage.;
 
         //데이터값을 넣어서 화면에 뿌려주는 공간
-        childViewHolder.mWeatherText.setText(list.getWeather().get(0).getMain());
-        childViewHolder.mTempText.setText(String.valueOf(list.getMain().getTemp()));
-        childViewHolder.mWindSpeedText.setText(String.valueOf(list.getWind().getSpeed()));
-        childViewHolder.mWindDirText.setText(String.valueOf(list.getWind().getDeg()));
-        childViewHolder.mPressureText.setText(String.valueOf(list.getMain().getPressure()));
-        childViewHolder.mHumidityText.setText(String.valueOf(list.getMain().getHumidity()));
+        childViewHolder.mWeatherText.setText(String.valueOf(weather));
+        childViewHolder.mTempText.setText(String.format("%.2f ℃",mList.getMain().getTemp() - 273.15));
+        childViewHolder.mWindSpeedText.setText(String.format("%s m/s", mList.getWind().getSpeed()));
+        childViewHolder.mWindDirText.setText(String.valueOf(mList.getWind().getDeg()));
+        childViewHolder.mPressureText.setText(String.valueOf(mList.getMain().getPressure()));
+        childViewHolder.mHumidityText.setText(String.valueOf(mList.getMain().getHumidity() + " %"));
 
 
         return convertView;
@@ -159,6 +162,30 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
         TextView mWindDirText;
         TextView mPressureText;
         TextView mHumidityText;
+    }
+
+    public String getWeather(String data){
+
+        if(data.equals("01d") || data.equals("01n")) {
+            mList.getWeather().get(0).setMain("맑은 날씨");
+        }else if(data.equals("02d") || data.equals("02n")) {
+            mList.getWeather().get(0).setMain("구름 조금");
+        }else if(data.equals("03d") || data.equals("03n")) {
+            mList.getWeather().get(0).setMain("많은 구름");
+        }else if(data.equals("04d") || data.equals("04n")) {
+            mList.getWeather().get(0).setMain("먹구름");
+        }else if(data.equals("09d") || data.equals("09n")) {
+            mList.getWeather().get(0).setMain("소량의 비");
+        }else if(data.equals("10d") || data.equals("10n")) {
+            mList.getWeather().get(0).setMain("비");
+        }else if(data.equals("11d") || data.equals("11n")) {
+            mList.getWeather().get(0).setMain("뇌우");
+        }else if(data.equals("13d") || data.equals("13n")) {
+            mList.getWeather().get(0).setMain("눈");
+        }else {
+            mList.getWeather().get(0).setMain("안개");
+        }
+        return mList.getWeather().get(0).getMain();
     }
 }
 

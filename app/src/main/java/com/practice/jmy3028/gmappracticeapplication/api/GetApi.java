@@ -16,7 +16,7 @@ import retrofit2.http.Query;
 public interface GetApi {
 
     String BASE_URL = "http://api.openweathermap.org/data/2.5/";
-
+    String BASE_APPID = "1de08f4347f09c9540f906a810f95b03";
 
 
     @GET("weather")
