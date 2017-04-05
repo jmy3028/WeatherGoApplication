@@ -46,16 +46,12 @@ public class FragmentsActivity extends AppCompatActivity {
 
         viewPager = (ViewPager) findViewById(R.id.frgment_view_pager);
 
-
-
-
-        //메인엑티비티에서 위도,경도 값 받아오기
+        //메인엑티비티에서 data값을 전달 받음.
         intent = getIntent();
-
-
+        WeatherMain result = (WeatherMain) intent.getSerializableExtra("Result1");
+        Example result2 = (Example) intent.getSerializableExtra("Result2");
 
         weatherFragment = WeatherFragment.newInstance(result);
-
         listFragment = ListFragment.newInstance(result2);
         FragmentsActivity.FragmentsPagerAdapter pagerAdapter = new FragmentsActivity.FragmentsPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
