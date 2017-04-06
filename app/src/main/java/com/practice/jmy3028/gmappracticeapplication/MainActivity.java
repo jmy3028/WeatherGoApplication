@@ -39,7 +39,6 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private LatLng seoul;
     private GetApi mGetApi;
 
     private GoogleMap mMap;
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private double firstLat = 37.541;
     private double firstLon = 126.986;
+
 
 
     @Override
@@ -79,35 +79,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         // Add a marker in Sydney and move the camera
-        seoul = new LatLng(firstLat, firstLon);
 
-        getCallResult(firstLat,firstLon);
-        mMap.addMarker(new MarkerOptions().position(seoul).title("" +
-                formatter.format(mResult1.getSys().getSunrise() * 1000L) + " > " +
-                formatter.format(mResult1.getSys().getSunset() * 1000L)));
+        getCallResult(firstLat,firstLon,12);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 12));
-
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                mMap.addMarker(new MarkerOptions().position(latLng)
-                        .title("" + formatter.format(mResult1.getSys().getSunrise() * 1000L)
-                                + " > " +
-                                formatter.format(mResult1.getSys().getSunset() * 1000L)));
-                getCallResult(latLng.latitude,latLng.longitude);
-            }
-        });
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
-                intent.putExtra("Result1", mResult1);
-                intent.putExtra("Result2", mResult2);
-                startActivity(intent);
-            }
-        });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -129,22 +105,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         final double lon = list.get(0).getLongitude();
 
                         //주소를 검색 하였을때 다시한번 그지역에 맞는 날씨를 콜한다.
-                        getCallResult(lat,lon);
+                        getCallResult(lat,lon,16);
 
-                        seoul = new LatLng(lat, lon);
 
-                        mMap.addMarker(new MarkerOptions().position(seoul).title("Marker in Sydney"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 16));
-
-                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                            @Override
-                            public void onInfoWindowClick(Marker marker) {
-                                Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
-                                intent.putExtra("Result1", mResult1);
-                                intent.putExtra("Result2", mResult2);
-                                startActivity(intent);
-                            }
-                        });
+                        onResponseComplete(16);
 
                     } else {
 
@@ -199,9 +163,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    public void onResponseComplete(int zoom) {
+        LatLng latLng = new LatLng(mResult1.getCoord().getLat(),mResult1.getCoord().getLon());
+        mMap.addMarker(new MarkerOptions().position(latLng).title("" +
+                formatter.format(mResult1.getSys().getSunrise() * 1000L) + " > " +
+                formatter.format(mResult1.getSys().getSunset() * 1000L)));
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                mMap.addMarker(new MarkerOptions().position(latLng)
+                        .title("" + formatter.format(mResult1.getSys().getSunrise() * 1000L)
+                                + " > " +
+                                formatter.format(mResult1.getSys().getSunset() * 1000L)));
+                getCallResult(latLng.latitude,latLng.longitude,16);
+            }
+        });
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
+                intent.putExtra("Result1", mResult1);
+                intent.putExtra("Result2", mResult2);
+                startActivity(intent);
+            }
+        });
+    }
+
 
     //Call를 요청하는 부분
-    public void getCallResult(double lat, double lon) {
+    public void getCallResult(final double lat, final double lon, final int zoom) {
 
         //첫번째 Call
         Call<WeatherMain> call = mGetApi.latlon(GetApi.BASE_APPID,
@@ -211,28 +204,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onResponse(Call<WeatherMain> call, Response<WeatherMain> response) {
                 mResult1 = response.body();
 
+                //두번째 Call
+                Call<Example> call2 = mGetApi.latlon2(GetApi.BASE_APPID,
+                        lat, lon);
+                call2.enqueue(new Callback<Example>() {
+                    @Override
+                    public void onResponse(Call<Example> call,
+                                           Response<Example> response) {
+                        mResult2 = response.body();
+
+                        onResponseComplete(zoom);
+                    }
+
+                    @Override
+                    public void onFailure(Call<Example> call, Throwable t) {
+                    }
+                });
+
             }
 
             @Override
-            public void onFailure(Call<WeatherMain> call, Throwable throwable) {
+            public void onFailure(Call<WeatherMain> call, Throwable t) {
             }
         });
 
-        //두번째 Call
-        Call<Example> call2 = mGetApi.latlon2(GetApi.BASE_APPID,
-                lat, lon);
-        call2.enqueue(new Callback<Example>() {
-            @Override
-            public void onResponse(Call<Example> call,
-                                   Response<Example> response) {
-                mResult2 = response.body();
 
-            }
-
-            @Override
-            public void onFailure(Call<Example> call, Throwable t) {
-            }
-        });
     }
 
 }
