@@ -1,5 +1,6 @@
 package com.practice.jmy3028.gmappracticeapplication.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,12 +27,9 @@ import java.util.HashMap;
 public class ListFragment extends Fragment {
 
     private java.util.List<List> mDtData;
-    private java.util.List<ListModel> mListData;
-    private java.util.List<java.util.List<ListModel>> mGroupData;
-    private String mResult;
     private ListFragmentAdapter mAdapter;
     private ExpandableListView mListView;
-    private ListModel listModel;
+    private Context mContext;
 
 
     //날씨에 대한 모든 데이터들을 이쪽에서 받기
@@ -57,10 +55,11 @@ public class ListFragment extends Fragment {
         Bundle bundle = getArguments();
         Example example = (Example) bundle.getSerializable("data");
         mDtData = example.getList();
+        mContext = getContext();
 
 
         mListView = (ExpandableListView) view.findViewById(R.id.expanded_list);
-        mAdapter = new ListFragmentAdapter(mDtData);
+        mAdapter = new ListFragmentAdapter(mContext,mDtData);
 
         mListView.setAdapter(mAdapter);
         mListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {

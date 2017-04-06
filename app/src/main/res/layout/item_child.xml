@@ -3,7 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#14ebff"
+    android:background="#a4d1d6"
     android:orientation="vertical"
     android:paddingBottom="20dp"
     android:paddingLeft="20dp"
@@ -126,6 +126,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/windDir_text"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -133,14 +134,15 @@
                     android:text="풍향"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/windDir_text"
+                <ImageView
+                    android:id="@+id/wind_image"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="일몰"
+                    android:text="풍향"
                     android:textStyle="bold" />
+
 
             </LinearLayout>
         </LinearLayout>

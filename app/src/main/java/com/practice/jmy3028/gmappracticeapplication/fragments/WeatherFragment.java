@@ -1,12 +1,16 @@
 package com.practice.jmy3028.gmappracticeapplication.fragments;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +35,7 @@ public class WeatherFragment extends Fragment {
 
     private WeatherFragmentBinding mBinding;
     private WeatherMain mData;
+    private Bitmap bitmap;
 
     //날씨에 대한 모든 데이터들을 이쪽에서 받기
     public static WeatherFragment newInstance(WeatherMain  data) {
@@ -57,17 +62,30 @@ public class WeatherFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ImageView imageView = (ImageView) view.findViewById(R.id.wind_dir_image);
+
+
         //fragment 엑티비티에서 데이터 값을 가져옴.
         mData = (WeatherMain) getArguments().getSerializable("data");
 
         //정보 변환 작업
         SimpleDateFormat formatter = new SimpleDateFormat ( "HH:mm", Locale.KOREA );
         String weather = getWeather(mData.getWeather().get(0).getIcon());
+        Matrix rotateMatrix = new Matrix();
+
+        //이미지 생성
+        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_main);
+
 
         mBinding.sunriseText.setText(formatter.format(mData.getSys().getSunrise() * 1000L));
         mBinding.setText.setText(formatter.format(mData.getSys().getSunset() * 1000L));
         mBinding.windSpeedText.setText(String.format("%s m/s", mData.getWind().getSpeed()));
-        mBinding.windDirText.setText(String.valueOf(mData.getWind().getDeg()));
+        rotateMatrix.postRotate(mData.getWind().getDeg()); // -360~360 회전
+        //이미지 회전시킨 것 적용 시켜서 뿌려주기
+        Bitmap sideInversionImg = Bitmap.createBitmap(bitmap, 0, 0,
+                bitmap.getWidth(), bitmap.getHeight(), rotateMatrix, false);
+        imageView.setImageBitmap(sideInversionImg);
+
         mBinding.weatherText.setText(String.valueOf(weather));
         mBinding.tempText.setText(String.format("%.2f ℃",mData.getMain().getTemp() - 273.15));
         mBinding.pressureText.setText(String.valueOf(mData.getMain().getPressure()));

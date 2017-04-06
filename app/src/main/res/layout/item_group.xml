@@ -6,9 +6,13 @@
 
     <TextView
         android:id="@+id/dt_text"
-        android:text="날짜"
-        android:textSize="18sp"
+        android:background="#FFA4D1D6"
+        android:paddingStart="30sp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="8sp"
+        android:paddingTop="8sp"
+        android:text="latlon"
+        android:textSize="20sp" />
 
 </LinearLayout>

@@ -14,6 +14,7 @@
         android:layout_weight="1" />
 
     <Button
+        android:background="#FFA4D1D6"
         android:id="@+id/close_button"
         android:text="닫기"
         android:layout_width="match_parent"

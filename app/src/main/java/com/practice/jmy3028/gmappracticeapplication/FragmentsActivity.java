@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.practice.jmy3028.gmappracticeapplication.api.GetApi;
@@ -32,8 +34,6 @@ public class FragmentsActivity extends AppCompatActivity {
     private WeatherFragment weatherFragment;
     private ListFragment listFragment;
     private Intent intent;
-    private GetApi mGetApi;
-    private List<WeatherFragment> mData;
 
 
     @Override
@@ -45,6 +45,7 @@ public class FragmentsActivity extends AppCompatActivity {
         listFragment = new ListFragment();
 
         viewPager = (ViewPager) findViewById(R.id.frgment_view_pager);
+        Button closeButton = (Button) findViewById(R.id.close_button);
 
         //메인엑티비티에서 data값을 전달 받음.
         intent = getIntent();
@@ -56,7 +57,12 @@ public class FragmentsActivity extends AppCompatActivity {
         FragmentsActivity.FragmentsPagerAdapter pagerAdapter = new FragmentsActivity.FragmentsPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
 
-
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
     }
 

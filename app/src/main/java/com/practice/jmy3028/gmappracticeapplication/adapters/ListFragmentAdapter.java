@@ -1,6 +1,9 @@
 package com.practice.jmy3028.gmappracticeapplication.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +26,13 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
     private List<com.practice.jmy3028.gmappracticeapplication.model2.List> mParentList;
     private com.practice.jmy3028.gmappracticeapplication.model2.List mList;
+    private Bitmap bitmap;
+    private Context mContext;
 
-    public ListFragmentAdapter( List<com.practice.jmy3028.gmappracticeapplication.model2.List> mParentList) {
+
+    public ListFragmentAdapter(Context context, List<com.practice.jmy3028.gmappracticeapplication.model2.List> mParentList) {
         this.mParentList = mParentList;
+        this.mContext = context;
     }
 
     @Override
@@ -105,7 +112,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
             TextView mWeatherText = (TextView) convertView.findViewById(R.id.weather_text);
             TextView mTempText = (TextView) convertView.findViewById(R.id.temp_text);
             TextView mWindSpeedText = (TextView) convertView.findViewById(R.id.windSpeed_text);
-            TextView mWindDirText = (TextView) convertView.findViewById(R.id.windDir_text);
+            ImageView mWindImage = (ImageView) convertView.findViewById(R.id.wind_image);
             TextView mPressureText = (TextView) convertView.findViewById(R.id.pressure_text);
             TextView mHumidityText = (TextView) convertView.findViewById(R.id.humidity_text);
 
@@ -114,7 +121,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
             childViewHolder.mWeatherText = mWeatherText;
             childViewHolder.mTempText = mTempText;
             childViewHolder.mWindSpeedText = mWindSpeedText;
-            childViewHolder.mWindDirText = mWindDirText;
+            childViewHolder.mWindImage = mWindImage;
             childViewHolder.mPressureText = mPressureText;
             childViewHolder.mHumidityText = mHumidityText;
 
@@ -136,7 +143,16 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
         childViewHolder.mWeatherText.setText(String.valueOf(weather));
         childViewHolder.mTempText.setText(String.format("%.2f ℃",mList.getMain().getTemp() - 273.15));
         childViewHolder.mWindSpeedText.setText(String.format("%s m/s", mList.getWind().getSpeed()));
-        childViewHolder.mWindDirText.setText(String.valueOf(mList.getWind().getDeg()));
+        Matrix rotateMatrix = new Matrix();
+
+        //이미지 생성
+        bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.ic_main);
+        rotateMatrix.postRotate((float) mList.getWind().getDeg()); // -360~360 회전
+        //이미지 회전시킨 것 적용 시켜서 뿌려주기
+        Bitmap sideInversionImg = Bitmap.createBitmap(bitmap, 0, 0,
+                bitmap.getWidth(), bitmap.getHeight(), rotateMatrix, false);
+        childViewHolder.mWindImage.setImageBitmap(sideInversionImg);
+
         childViewHolder.mPressureText.setText(String.valueOf(mList.getMain().getPressure()));
         childViewHolder.mHumidityText.setText(String.valueOf(mList.getMain().getHumidity() + " %"));
 
@@ -159,7 +175,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
         TextView mWeatherText;
         TextView mTempText;
         TextView mWindSpeedText;
-        TextView mWindDirText;
+        ImageView mWindImage;
         TextView mPressureText;
         TextView mHumidityText;
     }

@@ -5,7 +5,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#14ebff"
+        android:background="#a4d1d6"
         android:orientation="vertical"
         android:paddingBottom="20dp"
         android:paddingLeft="20dp"
@@ -69,12 +69,12 @@
                     android:text="풍속" />
 
                 <ImageView
-                    android:id="@+id/wind_dir_text"
+                    android:id="@+id/wind_dir_image"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:src=""
+                    android:src="@mipmap/ic_launcher"
                     android:text="풍향" />
             </LinearLayout>
 

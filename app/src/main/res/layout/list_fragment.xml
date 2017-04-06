@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <ExpandableListView
+        android:background="#FFA4D1D6"
         android:id="@+id/expanded_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
