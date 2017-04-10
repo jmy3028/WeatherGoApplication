@@ -59,11 +59,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Example mResult2;
     private SimpleDateFormat formatter;
 
-    private double firstLat;
-    private double firstLon;
+    private double firstLat = 37.541;
+    private double firstLon = 126.986;
     private boolean isGPSEnabled;
     private boolean isNetworkEnabled;
     private LocationManager mLocationManager;
+    private boolean mTFTest = true;
 
 
     @Override
@@ -74,8 +75,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        // Acquire a reference to the system Location Manager
-        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        mLocationManager = (LocationManager) MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -84,13 +85,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
+                mTFTest = true;
                 // Show an expanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
             } else {
-
+                mTFTest = false;
                 // No explanation needed, we can request the permission.
 
                 ActivityCompat.requestPermissions(MainActivity.this,
@@ -102,7 +103,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // result of the request.
             }
         } else {
+            mTFTest = true;
         }
+
 
         geocoder = new Geocoder(this);
 
@@ -117,27 +120,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                getLatLon();
-                return false;
+        if(mTFTest) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
             }
-        });
+            mMap.setMyLocationEnabled(true);
+            mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                @Override
+                public boolean onMyLocationButtonClick() {
 
-        getCallResult(firstLat, firstLon, 12);
+                    getLatLon();
+                    return false;
+                }
+            });
+        }else {
+
+            getCallResult(firstLat, firstLon, 12);
+        }
+
 
     }
 
@@ -156,8 +163,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 } else {
                     Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show();
-                    firstLat = 37.541;
-                    firstLon  = 126.986;
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
