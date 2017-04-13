@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -12,14 +13,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.inputmethod.InputMethod;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,6 +34,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.practice.jmy3028.gmappracticeapplication.api.GetApi;
 import com.practice.jmy3028.gmappracticeapplication.api.RetrofitUtil;
+import com.practice.jmy3028.gmappracticeapplication.fragments.ListFragment;
+import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
 import com.practice.jmy3028.gmappracticeapplication.model2.Example;
 
@@ -62,12 +67,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationManager mLocationManager;
     private boolean isNetworkEnabled;
     private Location mLastKnownLocation;
+    private WeatherFragment weatherFragment;
+    private ListFragment listFragment;
+    private int mActivityResult = 1;
+    private ViewPager mViewPager;
+    private WeatherMain mPagerResult1;
+    private Example mPagerResult2;
+    private LandViewPagerAdapter mPagerAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mActivityResult = 1;
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -79,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mLocationManager = (LocationManager) MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
 
+        weatherFragment = new WeatherFragment();
+        listFragment = new ListFragment();
 
         // 네트워크 프로바이더 사용가능여부
 
@@ -89,7 +104,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         formatter = new SimpleDateFormat("HH:mm", Locale.KOREA);
 
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("mResult1",mResult1);
+        outState.putSerializable("mResult2",mResult2);
     }
 
     private boolean checkLocationPermission() {
@@ -167,10 +188,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 }
                                 mLastKnownLocation = mLocationManager.getLastKnownLocation(provider);
                                 if (mLastKnownLocation != null) {
-                                    double lat = mLastKnownLocation.getLatitude();
-                                    double lon = mLastKnownLocation.getLongitude();
-                                    Log.d(TAG, "onMyLocationButtonClick: lat:" + lat + ", lon: " + lon);
-                                    getCallResult(lat, lon, 16);
+                                    firstLat = mLastKnownLocation.getLatitude();
+                                    firstLon = mLastKnownLocation.getLongitude();
+                                    Log.d(TAG, "onMyLocationButtonClick: lat:" + firstLat + ", lon: " + firstLon);
+                                    getCallResult(firstLat, firstLon, 16);
                                 }
                             }
                             return isGPSEnabled;
@@ -257,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void onResponseComplete(int zoom, double lat, double lon) {
-        if(mResult1 != null) {
+        if (mResult1 != null) {
             LatLng latLng = new LatLng(lat, lon);
             Log.d(TAG, "onResponseComplete: " + latLng.toString());
             mMap.addMarker(new MarkerOptions().position(latLng).title("" +
@@ -279,10 +300,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
                 public void onInfoWindowClick(Marker marker) {
-                    Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
-                    intent.putExtra("Result1", mResult1);
-                    intent.putExtra("Result2", mResult2);
-                    startActivity(intent);
+                    if (mActivityResult == 1) {
+                        Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
+                        intent.putExtra("Result1", mResult1);
+                        intent.putExtra("Result2", mResult2);
+                        startActivity(intent);
+                    }else {
+                        weatherFragment = WeatherFragment.newInstance(mResult1);
+                        listFragment = ListFragment.newInstance(mResult2);
+
+                        mPagerAdapter = new LandViewPagerAdapter(getSupportFragmentManager());
+                        mViewPager.setAdapter(mPagerAdapter);
+                    }
                 }
             });
         }
@@ -326,4 +355,58 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     }
+
+    /**
+     * 휴대폰 회전시 가로모드로 전환
+     * @param newConfig
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        setContentView(R.layout.activity_main);
+        super.onConfigurationChanged(newConfig);
+        mActivityResult = 2;
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map2);
+        mapFragment.getMapAsync(this);
+
+        mViewPager = (ViewPager) findViewById(R.id.fragment_pager);
+
+        getCallResult(firstLat,firstLon,16);
+
+//        mPagerResult1 = mResult1;
+//        mPagerResult2 = mResult2;
+
+        weatherFragment = WeatherFragment.newInstance(mResult1);
+        listFragment = ListFragment.newInstance(mResult2);
+
+        mPagerAdapter = new MainActivity.LandViewPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mPagerAdapter);
+
+    }
+
+    private class LandViewPagerAdapter extends FragmentPagerAdapter {
+
+        public LandViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return weatherFragment;
+                case 1:
+                    return listFragment;
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    }
+
+
 }

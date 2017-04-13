@@ -1,8 +1,6 @@
 package com.practice.jmy3028.gmappracticeapplication;
 
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,22 +9,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.practice.jmy3028.gmappracticeapplication.api.GetApi;
-import com.practice.jmy3028.gmappracticeapplication.api.RetrofitUtil;
 import com.practice.jmy3028.gmappracticeapplication.fragments.ListFragment;
 import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
 import com.practice.jmy3028.gmappracticeapplication.model2.Example;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class FragmentsActivity extends AppCompatActivity {
 
@@ -63,8 +50,8 @@ public class FragmentsActivity extends AppCompatActivity {
                 finish();
             }
         });
-
     }
+
 
     //PagerView를 활용해서 두개의 fragment 를 분할 해서 표현함.
     private class FragmentsPagerAdapter extends FragmentPagerAdapter {
