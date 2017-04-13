@@ -18,6 +18,8 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -202,8 +204,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         //주소를 검색 하였을때 다시한번 그지역에 맞는 날씨를 콜한다.
                         getCallResult(lat, lon, 16);
-                    } else {
-
+                        searchView.clearFocus();
                     }
                 } else {
                     Toast.makeText(MainActivity.this, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show();
