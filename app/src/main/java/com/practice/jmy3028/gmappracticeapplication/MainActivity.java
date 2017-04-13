@@ -1,6 +1,5 @@
 package com.practice.jmy3028.gmappracticeapplication;
 
-import android.*;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -8,21 +7,17 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,8 +29,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.practice.jmy3028.gmappracticeapplication.api.GetApi;
 import com.practice.jmy3028.gmappracticeapplication.api.RetrofitUtil;
-import com.practice.jmy3028.gmappracticeapplication.fragments.ListFragment;
-import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
 import com.practice.jmy3028.gmappracticeapplication.model2.Example;
 
@@ -50,6 +43,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private GetApi mGetApi;
 
     private GoogleMap mMap;
@@ -63,8 +57,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double firstLat = 37.541;
     private double firstLon = 126.986;
     private boolean isGPSEnabled;
-    private boolean isNetworkEnabled;
     private LocationManager mLocationManager;
+    private boolean isNetworkEnabled;
+    private Location mLastKnownLocation;
 
 
     @Override
@@ -81,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         mLocationManager = (LocationManager) MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
+
+
+        // 네트워크 프로바이더 사용가능여부
 
         geocoder = new Geocoder(this);
 
@@ -116,27 +114,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                mMap.setMyLocationEnabled(true);
-                getCallResult(firstLat, firstLon, 12);
-                mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-                    @Override
-                    public boolean onMyLocationButtonClick() {
-                        getLatLon();
-                        if(!isGPSEnabled && !isNetworkEnabled){
-                            Toast.makeText(MainActivity.this, "GPS를 켜주세요.", Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(MainActivity.this, "GPS가 정상작동 됩니다.", Toast.LENGTH_SHORT).show();
-                        }
-                        return false;
-                    }
-                });
-            } else {
-                getCallResult(firstLat, firstLon, 12);
-            }
+        getCallResult(firstLat, firstLon, 12);
+        if (checkLocationPermission()) {
+            gpsHelper();
         }
     }
 
@@ -148,10 +128,55 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //권한이 승인 되었습니다.
                     Toast.makeText(this, "권한이 승인되었습니다.", Toast.LENGTH_SHORT).show();
-
+                    gpsHelper();
                 } else {
                     Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show();
                 }
+            }
+        }
+    }
+
+    public void gpsHelper() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                getCallResult(firstLat, firstLon, 12);
+                mMap.setMyLocationEnabled(true);
+                mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+                    @Override
+                    public boolean onMyLocationButtonClick() {
+                        // GPS 프로바이더 사용가능여부
+                        isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//                        getLatLon();
+                        if (!isGPSEnabled && !isNetworkEnabled) {
+                            Toast.makeText(MainActivity.this, "GPS를 켜주세요.", Toast.LENGTH_SHORT).show();
+                            return isGPSEnabled;
+                        } else {
+                            Toast.makeText(MainActivity.this, "GPS가 정상작동 됩니다.", Toast.LENGTH_SHORT).show();
+
+                            if (isGPSEnabled) {
+                                //수동으로 위치 구하기
+                                String provider = LocationManager.GPS_PROVIDER;
+                                if (ActivityCompat.checkSelfPermission(
+                                        MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                                        != PackageManager.PERMISSION_GRANTED) {
+                                    return false;
+                                }
+                                mLastKnownLocation = mLocationManager.getLastKnownLocation(provider);
+                                if (mLastKnownLocation != null) {
+                                    double lat = mLastKnownLocation.getLatitude();
+                                    double lon = mLastKnownLocation.getLongitude();
+                                    Log.d(TAG, "onMyLocationButtonClick: lat:" + lat + ", lon: " + lon);
+                                    getCallResult(lat, lon, 16);
+                                }
+                            }
+                            return isGPSEnabled;
+                        }
+                    }
+                });
+            } else {
+                getCallResult(firstLat, firstLon, 12);
             }
         }
     }
@@ -177,10 +202,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         //주소를 검색 하였을때 다시한번 그지역에 맞는 날씨를 콜한다.
                         getCallResult(lat, lon, 16);
-
-
-                        onResponseComplete(16);
-
                     } else {
 
                     }
@@ -234,33 +255,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void onResponseComplete(int zoom) {
-        LatLng latLng = new LatLng(mResult1.getCoord().getLat(), mResult1.getCoord().getLon());
-        mMap.addMarker(new MarkerOptions().position(latLng).title("" +
-                formatter.format(mResult1.getSys().getSunrise() * 1000L) + " > " +
-                formatter.format(mResult1.getSys().getSunset() * 1000L)));
+    public void onResponseComplete(int zoom, double lat, double lon) {
+        if(mResult1 != null) {
+            LatLng latLng = new LatLng(lat, lon);
+            Log.d(TAG, "onResponseComplete: " + latLng.toString());
+            mMap.addMarker(new MarkerOptions().position(latLng).title("" +
+                    formatter.format(mResult1.getSys().getSunrise() * 1000L) + " > " +
+                    formatter.format(mResult1.getSys().getSunset() * 1000L)));
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                mMap.addMarker(new MarkerOptions().position(latLng)
-                        .title("" + formatter.format(mResult1.getSys().getSunrise() * 1000L)
-                                + " > " +
-                                formatter.format(mResult1.getSys().getSunset() * 1000L)));
-                getCallResult(latLng.latitude, latLng.longitude, 16);
-            }
-        });
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
-                intent.putExtra("Result1", mResult1);
-                intent.putExtra("Result2", mResult2);
-                startActivity(intent);
-            }
-        });
+            mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    mMap.addMarker(new MarkerOptions().position(latLng)
+                            .title("" + formatter.format(mResult1.getSys().getSunrise() * 1000L)
+                                    + " > " +
+                                    formatter.format(mResult1.getSys().getSunset() * 1000L)));
+                    getCallResult(latLng.latitude, latLng.longitude, 16);
+                }
+            });
+            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
+                    intent.putExtra("Result1", mResult1);
+                    intent.putExtra("Result2", mResult2);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
 
@@ -284,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                            Response<Example> response) {
                         mResult2 = response.body();
 
-                        onResponseComplete(zoom);
+                        onResponseComplete(zoom, lat, lon);
                     }
 
                     @Override
@@ -301,49 +325,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     }
-
-    public void getLatLon() {
-        // GPS 프로바이더 사용가능여부
-        isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        // 네트워크 프로바이더 사용가능여부
-        isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-        Log.d("Main", "isGPSEnabled=" + isGPSEnabled);
-        Log.d("Main", "isNetworkEnabled=" + isNetworkEnabled);
-
-        LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                firstLat = location.getLatitude();
-                firstLon = location.getLongitude();
-
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            public void onProviderEnabled(String provider) {
-            }
-
-            public void onProviderDisabled(String provider) {
-            }
-        };
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mLocationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-        mLocationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-    }
-
 }
