@@ -19,7 +19,6 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".MainActivity"
-            android:configChanges="screenSize|orientation"
             android:screenOrientation="sensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

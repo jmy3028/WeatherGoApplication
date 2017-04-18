@@ -3,6 +3,7 @@ package com.practice.jmy3028.gmappracticeapplication;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Address;
@@ -12,11 +13,13 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -71,29 +74,52 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ListFragment listFragment;
     private int mActivityResult = 1;
     private ViewPager mViewPager;
-    private WeatherMain mPagerResult1;
-    private Example mPagerResult2;
     private LandViewPagerAdapter mPagerAdapter;
+    private final String LAT_KEY = "resultLat";
+    private final String LON_KEY = "resultLon";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mActivityResult = 1;
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if (savedInstanceState != null) {
+            mResult1 = (WeatherMain) savedInstanceState.getSerializable(LAT_KEY);
+            mResult2 = (Example) savedInstanceState.getSerializable(LON_KEY);
+        }
+
+        if (findViewById(R.id.map2) != null) {
+            mActivityResult = 2;
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map2);
+            mapFragment.getMapAsync(this);
+
+            weatherFragment = new WeatherFragment();
+            listFragment = new ListFragment();
+
+            mViewPager = (ViewPager) findViewById(R.id.fragment_pager);
+
+
+            weatherFragment = WeatherFragment.newInstance(mResult1);
+            listFragment = ListFragment.newInstance(mResult2);
+
+            mPagerAdapter = new MainActivity.LandViewPagerAdapter(getSupportFragmentManager());
+            mViewPager.setAdapter(mPagerAdapter);
+        }else {
+            mActivityResult = 1;
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.gmap_fragment);
+            mapFragment.getMapAsync(this);
+        }
+
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
 
         mLocationManager = (LocationManager) MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
-
-        weatherFragment = new WeatherFragment();
-        listFragment = new ListFragment();
 
         // 네트워크 프로바이더 사용가능여부
 
@@ -104,13 +130,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         formatter = new SimpleDateFormat("HH:mm", Locale.KOREA);
 
+
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(LAT_KEY,mResult1);
+        outState.putSerializable(LON_KEY,mResult2);
         super.onSaveInstanceState(outState);
-        outState.putSerializable("mResult1",mResult1);
-        outState.putSerializable("mResult2",mResult2);
     }
 
     private boolean checkLocationPermission() {
@@ -277,47 +304,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void onResponseComplete(int zoom, double lat, double lon) {
-        if (mResult1 != null) {
-            LatLng latLng = new LatLng(lat, lon);
-            Log.d(TAG, "onResponseComplete: " + latLng.toString());
-            mMap.addMarker(new MarkerOptions().position(latLng).title("" +
-                    formatter.format(mResult1.getSys().getSunrise() * 1000L) + " > " +
-                    formatter.format(mResult1.getSys().getSunset() * 1000L)));
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-
-            mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                @Override
-                public void onMapLongClick(LatLng latLng) {
-                    mMap.addMarker(new MarkerOptions().position(latLng)
-                            .title("" + formatter.format(mResult1.getSys().getSunrise() * 1000L)
-                                    + " > " +
-                                    formatter.format(mResult1.getSys().getSunset() * 1000L)));
-                    getCallResult(latLng.latitude, latLng.longitude, 16);
-                }
-            });
-            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                @Override
-                public void onInfoWindowClick(Marker marker) {
-                    if (mActivityResult == 1) {
-                        Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
-                        intent.putExtra("Result1", mResult1);
-                        intent.putExtra("Result2", mResult2);
-                        startActivity(intent);
-                    }else {
-                        weatherFragment = WeatherFragment.newInstance(mResult1);
-                        listFragment = ListFragment.newInstance(mResult2);
-
-                        mPagerAdapter = new LandViewPagerAdapter(getSupportFragmentManager());
-                        mViewPager.setAdapter(mPagerAdapter);
-                    }
-                }
-            });
-        }
-    }
-
-
     //Call를 요청하는 부분
     public void getCallResult(final double lat, final double lon, final int zoom) {
 
@@ -356,33 +342,48 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    /**
-     * 휴대폰 회전시 가로모드로 전환
-     * @param newConfig
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        setContentView(R.layout.activity_main);
-        super.onConfigurationChanged(newConfig);
-        mActivityResult = 2;
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map2);
-        mapFragment.getMapAsync(this);
+    public void onResponseComplete(int zoom, double lat, double lon) {
+        if (mResult1 != null) {
+            LatLng latLng = new LatLng(lat, lon);
+            Log.d(TAG, "onResponseComplete: " + latLng.toString());
+            mMap.addMarker(new MarkerOptions().position(latLng).title("" +
+                    formatter.format(mResult1.getSys().getSunrise() * 1000L) + " > " +
+                    formatter.format(mResult1.getSys().getSunset() * 1000L)));
 
-        mViewPager = (ViewPager) findViewById(R.id.fragment_pager);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 
-        getCallResult(firstLat,firstLon,16);
+            mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    mMap.addMarker(new MarkerOptions().position(latLng)
+                            .title("" + formatter.format(mResult1.getSys().getSunrise() * 1000L)
+                                    + " > " +
+                                    formatter.format(mResult1.getSys().getSunset() * 1000L)));
+                    getCallResult(latLng.latitude, latLng.longitude, 16);
+                }
+            });
+            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    if (mActivityResult == 1) {
+                        Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
+                        intent.putExtra("Result1", mResult1);
+                        intent.putExtra("Result2", mResult2);
+                        startActivity(intent);
+                    } else {
+                        Log.d(TAG, "onInfoWindowClick: 클릭됨");
 
-//        mPagerResult1 = mResult1;
-//        mPagerResult2 = mResult2;
+                        weatherFragment = WeatherFragment.newInstance(mResult1);
+                        listFragment = ListFragment.newInstance(mResult2);
 
-        weatherFragment = WeatherFragment.newInstance(mResult1);
-        listFragment = ListFragment.newInstance(mResult2);
+                        mPagerAdapter = new MainActivity.LandViewPagerAdapter(getSupportFragmentManager());
+                        mViewPager.setAdapter(mPagerAdapter);
 
-        mPagerAdapter = new MainActivity.LandViewPagerAdapter(getSupportFragmentManager());
-        mViewPager.setAdapter(mPagerAdapter);
-
+                    }
+                }
+            });
+        }
     }
 
     private class LandViewPagerAdapter extends FragmentPagerAdapter {
@@ -407,6 +408,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             return 2;
         }
     }
-
-
 }
