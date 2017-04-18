@@ -5,16 +5,23 @@
     android:orientation="horizontal">
 
     <fragment
-        android:id="@+id/map2"
+        android:id="@+id/gmap_fragment"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
-    <android.support.v4.view.ViewPager
-        android:layout_weight="1"
-        android:id="@+id/fragment_pager"
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="0dp"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <fragment
+            android:id="@+id/fragment_pager"
+            android:name="com.practice.jmy3028.gmappracticeapplication.DetailFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
 </LinearLayout>

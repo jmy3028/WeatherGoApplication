@@ -2,8 +2,6 @@ package com.practice.jmy3028.gmappracticeapplication;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Address;
@@ -13,14 +11,8 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -37,8 +29,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.practice.jmy3028.gmappracticeapplication.api.GetApi;
 import com.practice.jmy3028.gmappracticeapplication.api.RetrofitUtil;
-import com.practice.jmy3028.gmappracticeapplication.fragments.ListFragment;
-import com.practice.jmy3028.gmappracticeapplication.fragments.WeatherFragment;
 import com.practice.jmy3028.gmappracticeapplication.model.WeatherMain;
 import com.practice.jmy3028.gmappracticeapplication.model2.Example;
 
@@ -70,11 +60,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationManager mLocationManager;
     private boolean isNetworkEnabled;
     private Location mLastKnownLocation;
-    private WeatherFragment weatherFragment;
-    private ListFragment listFragment;
-    private int mActivityResult = 1;
-    private ViewPager mViewPager;
-    private LandViewPagerAdapter mPagerAdapter;
+    private boolean mIsPortrait = true;
     private final String LAT_KEY = "resultLat";
     private final String LON_KEY = "resultLon";
 
@@ -89,28 +75,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mResult2 = (Example) savedInstanceState.getSerializable(LON_KEY);
         }
 
-        if (findViewById(R.id.map2) != null) {
-            mActivityResult = 2;
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map2);
-            mapFragment.getMapAsync(this);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.gmap_fragment);
+        mapFragment.getMapAsync(this);
 
-            weatherFragment = new WeatherFragment();
-            listFragment = new ListFragment();
-
-            mViewPager = (ViewPager) findViewById(R.id.fragment_pager);
-
-
-            weatherFragment = WeatherFragment.newInstance(mResult1);
-            listFragment = ListFragment.newInstance(mResult2);
-
-            mPagerAdapter = new MainActivity.LandViewPagerAdapter(getSupportFragmentManager());
-            mViewPager.setAdapter(mPagerAdapter);
-        }else {
-            mActivityResult = 1;
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.gmap_fragment);
-            mapFragment.getMapAsync(this);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mIsPortrait = true;
+        } else {
+            mIsPortrait = false;
         }
 
 
@@ -119,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             checkLocationPermission();
         }
 
-        mLocationManager = (LocationManager) MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         // 네트워크 프로바이더 사용가능여부
 
@@ -366,46 +338,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
                 public void onInfoWindowClick(Marker marker) {
-                    if (mActivityResult == 1) {
-                        Intent intent = new Intent(MainActivity.this, FragmentsActivity.class);
-                        intent.putExtra("Result1", mResult1);
-                        intent.putExtra("Result2", mResult2);
-                        startActivity(intent);
+                    if (mIsPortrait) {
+                        getSupportFragmentManager().beginTransaction()
+                                .add(R.id.container, DetailFragment.createDetailFragment(mResult1, mResult2))
+                                .addToBackStack(null)
+                                .commit();
                     } else {
-                        Log.d(TAG, "onInfoWindowClick: 클릭됨");
-
-                        weatherFragment = WeatherFragment.newInstance(mResult1);
-                        listFragment = ListFragment.newInstance(mResult2);
-
-                        mPagerAdapter = new MainActivity.LandViewPagerAdapter(getSupportFragmentManager());
-                        mViewPager.setAdapter(mPagerAdapter);
-
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, DetailFragment.createDetailFragment(mResult1, mResult2))
+                                .addToBackStack(null)
+                                .commit();
                     }
                 }
             });
         }
     }
 
-    private class LandViewPagerAdapter extends FragmentPagerAdapter {
-
-        public LandViewPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return weatherFragment;
-                case 1:
-                    return listFragment;
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-    }
 }
