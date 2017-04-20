@@ -7,13 +7,13 @@
     tools:context="com.practice.jmy3028.gmappracticeapplication.MainActivity">
 
     <FrameLayout
-        android:id="@+id/container"
+        android:id="@+id/vertical_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <fragment
             android:id="@+id/gmap_fragment"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
+            class ="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>

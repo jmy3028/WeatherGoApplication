@@ -6,13 +6,13 @@
 
     <fragment
         android:id="@+id/gmap_fragment"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+        class ="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
     <FrameLayout
-        android:id="@+id/container"
+        android:id="@+id/horizontal_frame"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1">

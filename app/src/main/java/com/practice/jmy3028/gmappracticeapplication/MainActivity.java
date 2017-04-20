@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean mIsPortrait = true;
     private final String LAT_KEY = "resultLat";
     private final String LON_KEY = "resultLon";
+    private DetailFragment mDetailFragment;
 
 
     @Override
@@ -70,21 +71,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         if (savedInstanceState != null) {
             mResult1 = (WeatherMain) savedInstanceState.getSerializable(LAT_KEY);
             mResult2 = (Example) savedInstanceState.getSerializable(LON_KEY);
         }
 
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.gmap_fragment);
         mapFragment.getMapAsync(this);
 
+
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             mIsPortrait = true;
+            if(mMap != null) {
+                mMap.clear();
+            }
         } else {
             mIsPortrait = false;
+            if(mMap != null){
+                mMap.clear();
+            }
         }
-
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -107,8 +116,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(LAT_KEY,mResult1);
-        outState.putSerializable(LON_KEY,mResult2);
+        outState.putSerializable(LAT_KEY, mResult1);
+        outState.putSerializable(LON_KEY, mResult2);
         super.onSaveInstanceState(outState);
     }
 
@@ -136,10 +145,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        getCallResult(firstLat, firstLon, 12);
-        if (checkLocationPermission()) {
-            gpsHelper();
+        if(mResult1 != null){
+            final double lat = mResult1.getCoord().getLat();
+            final double lon = mResult1.getCoord().getLon();
+            Log.d(TAG, "lat : lon" + lat +" " + lon);
+            if (checkLocationPermission()) {
+                gpsHelper(lat,lon);
+            }
+        }else {
+            if(checkLocationPermission()){
+                gpsHelper(firstLat,firstLon);
+            }
         }
+
     }
 
     @Override
@@ -150,19 +168,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //권한이 승인 되었습니다.
                     Toast.makeText(this, "권한이 승인되었습니다.", Toast.LENGTH_SHORT).show();
-                    gpsHelper();
+                    gpsHelper(firstLat,firstLon);
                 } else {
                     Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show();
+                    getCallResult(firstLat,firstLon,12);
                 }
             }
         }
     }
 
-    public void gpsHelper() {
+    public void gpsHelper(final double lat,final double lon) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                getCallResult(firstLat, firstLon, 12);
+                getCallResult(lat, lon, 12);
                 mMap.setMyLocationEnabled(true);
                 mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                     @Override
@@ -339,19 +358,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onInfoWindowClick(Marker marker) {
                     if (mIsPortrait) {
+                        mDetailFragment = DetailFragment.createDetailFragment(mResult1,mResult2);
                         getSupportFragmentManager().beginTransaction()
-                                .add(R.id.container, DetailFragment.createDetailFragment(mResult1, mResult2))
+                                .add(R.id.vertical_frame, mDetailFragment)
                                 .addToBackStack(null)
                                 .commit();
                     } else {
+                        mDetailFragment = DetailFragment.createDetailFragment(mResult1,mResult2);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, DetailFragment.createDetailFragment(mResult1, mResult2))
-                                .addToBackStack(null)
+                                .add(R.id.horizontal_frame, mDetailFragment)
                                 .commit();
                     }
                 }
             });
         }
     }
+
 
 }
