@@ -7,10 +7,12 @@ import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,7 +46,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks
+        , GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private GetApi mGetApi;
@@ -53,17 +59,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private WeatherMain mResult1;
     private Example mResult2;
     private SimpleDateFormat formatter;
+    private GoogleApiClient mGoogleApiClient;
 
     private double firstLat = 37.541;
     private double firstLon = 126.986;
+    private double mLat;
+    private double mLon;
     private boolean isGPSEnabled;
     private LocationManager mLocationManager;
     private boolean isNetworkEnabled;
-    private Location mLastKnownLocation;
     private boolean mIsPortrait = true;
     private final String LAT_KEY = "resultLat";
     private final String LON_KEY = "resultLon";
     private DetailFragment mDetailFragment;
+    private Location mLastLocation;
 
 
     @Override
@@ -85,14 +94,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             mIsPortrait = true;
-            if(mMap != null) {
-                mMap.clear();
-            }
         } else {
             mIsPortrait = false;
-            if(mMap != null){
-                mMap.clear();
-            }
         }
 
 
@@ -111,6 +114,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         formatter = new SimpleDateFormat("HH:mm", Locale.KOREA);
 
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
 
     }
 
@@ -145,16 +155,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if(mResult1 != null){
+        if (mResult1 != null) {
             final double lat = mResult1.getCoord().getLat();
             final double lon = mResult1.getCoord().getLon();
-            Log.d(TAG, "lat : lon" + lat +" " + lon);
+            Log.d(TAG, "lat : lon" + lat + " " + lon);
             if (checkLocationPermission()) {
-                gpsHelper(lat,lon);
+                gpsHelper(lat, lon);
             }
-        }else {
-            if(checkLocationPermission()){
-                gpsHelper(firstLat,firstLon);
+        } else {
+            if (checkLocationPermission()) {
+                gpsHelper(firstLat, firstLon);
             }
         }
 
@@ -168,16 +178,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //권한이 승인 되었습니다.
                     Toast.makeText(this, "권한이 승인되었습니다.", Toast.LENGTH_SHORT).show();
-                    gpsHelper(firstLat,firstLon);
+                    gpsHelper(firstLat, firstLon);
                 } else {
                     Toast.makeText(this, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show();
-                    getCallResult(firstLat,firstLon,12);
+                    getCallResult(firstLat, firstLon, 12);
                 }
             }
         }
     }
 
-    public void gpsHelper(final double lat,final double lon) {
+    public void gpsHelper(final double lat, final double lon) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -189,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         // GPS 프로바이더 사용가능여부
                         isGPSEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
                         isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-//                        getLatLon();
                         if (!isGPSEnabled && !isNetworkEnabled) {
                             Toast.makeText(MainActivity.this, "GPS를 켜주세요.", Toast.LENGTH_SHORT).show();
                             return isGPSEnabled;
@@ -197,23 +206,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Toast.makeText(MainActivity.this, "GPS가 정상작동 됩니다.", Toast.LENGTH_SHORT).show();
 
                             if (isGPSEnabled) {
-                                //수동으로 위치 구하기
-                                String provider = LocationManager.GPS_PROVIDER;
-                                if (ActivityCompat.checkSelfPermission(
-                                        MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
-                                        != PackageManager.PERMISSION_GRANTED) {
-                                    return false;
-                                }
-                                mLastKnownLocation = mLocationManager.getLastKnownLocation(provider);
-                                if (mLastKnownLocation != null) {
-                                    firstLat = mLastKnownLocation.getLatitude();
-                                    firstLon = mLastKnownLocation.getLongitude();
-                                    Log.d(TAG, "onMyLocationButtonClick: lat:" + firstLat + ", lon: " + firstLon);
-                                    getCallResult(firstLat, firstLon, 16);
-                                }
+                                //gps
+                                getCallResult(mLat, mLon, 16);
                             }
                             return isGPSEnabled;
                         }
+
                     }
                 });
             } else {
@@ -236,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //만약 공백이 아니면 reMapReady에 입력값 전송.
                     reMapReady(query);
                     //reMapReady작업이 끝나고 결과 값을 리턴해주면 그 값이 비어있는지 확인.
-                    if (list != null) {
+                    if (list.size() != 0) {
                         //위도 경도 값 가져와서 지도에 마커 표시하기
                         final double lat = list.get(0).getLatitude();
                         final double lon = list.get(0).getLongitude();
@@ -244,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         //주소를 검색 하였을때 다시한번 그지역에 맞는 날씨를 콜한다.
                         getCallResult(lat, lon, 16);
                         searchView.clearFocus();
+                    } else {
+                        Toast.makeText(MainActivity.this, "주소를 다시 입력해주세요", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(MainActivity.this, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show();
@@ -358,13 +358,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onInfoWindowClick(Marker marker) {
                     if (mIsPortrait) {
-                        mDetailFragment = DetailFragment.createDetailFragment(mResult1,mResult2);
+                        mDetailFragment = DetailFragment.createDetailFragment(mResult1, mResult2);
                         getSupportFragmentManager().beginTransaction()
                                 .add(R.id.vertical_frame, mDetailFragment)
                                 .addToBackStack(null)
                                 .commit();
                     } else {
-                        mDetailFragment = DetailFragment.createDetailFragment(mResult1,mResult2);
+                        mDetailFragment = DetailFragment.createDetailFragment(mResult1, mResult2);
                         getSupportFragmentManager().beginTransaction()
                                 .add(R.id.horizontal_frame, mDetailFragment)
                                 .commit();
@@ -374,5 +374,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
 
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi
+                .getLastLocation(mGoogleApiClient);
+        if(mLastLocation != null){
+            mLat = mLastLocation.getLatitude();
+            mLon = mLastLocation.getLongitude();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }

@@ -11,12 +11,29 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+//    signingConfigs {
+//        release {
+//            storeFile file(“../signature/jsOh”)     // 키스토어 위치
+//            storePassword _storePassword
+//            keyAlias _keyAlias
+//            keyPassword _keyPassword
+//        }
+//    }
     buildTypes {
         release {
-            minifyEnabled false
+//            signingConfig signingConfigs.release    // 여기
+//            minifyEnabled true          //난독화
+//            zipAlignEnabled true        //zipAlign
+            shrinkResources true        //미사용 리소스 제거
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+//    lintOptions {
+//        checkReleaseBuilds false
+//        // Or, if you prefer, you can continue to check for errors in release builds,
+//        // but continue the build even when errors are found:
+//        abortOnError false
+//    }
     dataBinding {
         enabled = true
     }
