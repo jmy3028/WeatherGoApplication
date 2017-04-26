@@ -22,6 +22,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private GetApi mGetApi;
+    private AdView mAdView;
 
     private GoogleMap mMap;
     private Geocoder geocoder;
@@ -79,6 +82,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //광고 달기
+        mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest.Builder adRequest = new AdRequest.Builder();
+//        adRequest.addTestDevice("07AE830F7A7C9D39255EA207A4A9F684");
+        mAdView.loadAd(adRequest.build());
 
 
         if (savedInstanceState != null) {
@@ -204,10 +213,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             return isGPSEnabled;
                         } else {
                             Toast.makeText(MainActivity.this, "GPS가 정상작동 됩니다.", Toast.LENGTH_SHORT).show();
-
+                            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED
+                                    && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED) {
+                            }
+                            mLastLocation = LocationServices.FusedLocationApi
+                                    .getLastLocation(mGoogleApiClient);
+                            if (mLastLocation != null) {
+                                mLat = mLastLocation.getLatitude();
+                                mLon = mLastLocation.getLongitude();
+                            }
                             if (isGPSEnabled) {
                                 //gps
-                                getCallResult(mLat, mLon, 16);
+                                if (mLat != 0) {
+                                    getCallResult(mLat, mLon, 16);
+                                }
                             }
                             return isGPSEnabled;
                         }
@@ -393,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         mLastLocation = LocationServices.FusedLocationApi
                 .getLastLocation(mGoogleApiClient);
-        if(mLastLocation != null){
+        if (mLastLocation != null) {
             mLat = mLastLocation.getLatitude();
             mLon = mLastLocation.getLongitude();
         }

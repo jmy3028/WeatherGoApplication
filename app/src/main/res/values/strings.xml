@@ -1,4 +1,6 @@
 <resources>
-    <string name="app_name">Map연습</string>
+    <string name="app_name">날씨Go</string>
     <string name="title_activity_maps_main">Map</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9184667001688588/2230857356</string>
+
 </resources>
