@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final String LON_KEY = "resultLon";
     private DetailFragment mDetailFragment;
     private Location mLastLocation;
+    private int mVer;
 
 
     @Override
@@ -379,13 +380,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onInfoWindowClick(Marker marker) {
                     if (mIsPortrait) {
-                        mDetailFragment = DetailFragment.createDetailFragment(mResult1, mResult2);
+                        mVer = 1;
+                        mDetailFragment = DetailFragment.createDetailFragment(mResult1, mResult2, mVer);
                         getSupportFragmentManager().beginTransaction()
                                 .add(R.id.vertical_frame, mDetailFragment)
                                 .addToBackStack(null)
                                 .commit();
                     } else {
-                        mDetailFragment = DetailFragment.createDetailFragment(mResult1, mResult2);
+                        mVer = 2;
+                        mDetailFragment = DetailFragment.createDetailFragment(mResult1, mResult2, mVer);
                         getSupportFragmentManager().beginTransaction()
                                 .add(R.id.horizontal_frame, mDetailFragment)
                                 .commit();

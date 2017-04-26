@@ -28,6 +28,7 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
     private com.practice.jmy3028.gmappracticeapplication.model2.List mList;
     private Bitmap bitmap;
     private Context mContext;
+    private int mCloudData;
 
 
     public ListFragmentAdapter(Context context, List<com.practice.jmy3028.gmappracticeapplication.model2.List> mParentList) {
@@ -136,9 +137,21 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
         String weather = getWeather(mList.getWeather().get(0).getIcon());
 
-        //이미지 받아오기
-//        childViewHolder.mWeatherImage.;
-
+        if(mCloudData == 1){
+            childViewHolder.mWeatherImage.setImageResource(R.drawable.weather_clear128);
+        }else if (mCloudData == 2){
+            childViewHolder.mWeatherImage.setImageResource(R.drawable.weather_few_clouds128);
+        }else if (mCloudData == 3){
+            childViewHolder.mWeatherImage.setImageResource(R.drawable.many_cloud);
+        }else if (mCloudData == 4){
+            childViewHolder.mWeatherImage.setImageResource(R.drawable.weather_showers_scattered128);
+        }else if (mCloudData == 5){
+            childViewHolder.mWeatherImage.setImageResource(R.drawable.weather_storm128);
+        }else if (mCloudData == 6){
+            childViewHolder.mWeatherImage.setImageResource(R.drawable.weather_snow128);
+        }else {
+            childViewHolder.mWeatherImage.setImageResource(R.drawable.weather_fog);
+        }
         //데이터값을 넣어서 화면에 뿌려주는 공간
         childViewHolder.mWeatherText.setText(String.valueOf(weather));
         childViewHolder.mTempText.setText(String.format("%.2f ℃",mList.getMain().getTemp() - 273.15));
@@ -184,22 +197,31 @@ public class ListFragmentAdapter extends BaseExpandableListAdapter {
 
         if(data.equals("01d") || data.equals("01n")) {
             mList.getWeather().get(0).setMain("맑은 날씨");
+            mCloudData = 1;
         }else if(data.equals("02d") || data.equals("02n")) {
             mList.getWeather().get(0).setMain("구름 조금");
+            mCloudData = 2;
         }else if(data.equals("03d") || data.equals("03n")) {
             mList.getWeather().get(0).setMain("많은 구름");
+            mCloudData = 3;
         }else if(data.equals("04d") || data.equals("04n")) {
             mList.getWeather().get(0).setMain("먹구름");
+            mCloudData = 3;
         }else if(data.equals("09d") || data.equals("09n")) {
             mList.getWeather().get(0).setMain("소량의 비");
+            mCloudData = 4;
         }else if(data.equals("10d") || data.equals("10n")) {
             mList.getWeather().get(0).setMain("비");
+            mCloudData = 4;
         }else if(data.equals("11d") || data.equals("11n")) {
             mList.getWeather().get(0).setMain("뇌우");
+            mCloudData = 5;
         }else if(data.equals("13d") || data.equals("13n")) {
             mList.getWeather().get(0).setMain("눈");
+            mCloudData = 6;
         }else {
             mList.getWeather().get(0).setMain("안개");
+            mCloudData = 7;
         }
         return mList.getWeather().get(0).getMain();
     }

@@ -36,12 +36,14 @@ public class WeatherFragment extends Fragment {
     private WeatherFragmentBinding mBinding;
     private WeatherMain mData;
     private Bitmap bitmap;
+    private int mVer;
 
     //날씨에 대한 모든 데이터들을 이쪽에서 받기
-    public static WeatherFragment newInstance(WeatherMain  data) {
+    public static WeatherFragment newInstance(WeatherMain data, int ver) {
         WeatherFragment fragment = new WeatherFragment();
         Bundle bundle = new Bundle();
-        bundle.putSerializable("data",data);
+        bundle.putSerializable("data", data);
+        bundle.putInt("ver", ver);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -51,7 +53,7 @@ public class WeatherFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater,
                 R.layout.weather_fragment,
-                container,false);
+                container, false);
 
         return mBinding.getRoot();
 
@@ -67,15 +69,15 @@ public class WeatherFragment extends Fragment {
 
         //fragment 엑티비티에서 데이터 값을 가져옴.
         mData = (WeatherMain) getArguments().getSerializable("data");
+        mVer = getArguments().getInt("ver");
 
         //정보 변환 작업
-        SimpleDateFormat formatter = new SimpleDateFormat ( "HH:mm", Locale.KOREA );
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm", Locale.KOREA);
         String weather = getWeather(mData.getWeather().get(0).getIcon());
         Matrix rotateMatrix = new Matrix();
 
         //이미지 생성
         bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_main);
-
 
         mBinding.sunriseText.setText(formatter.format(mData.getSys().getSunrise() * 1000L));
         mBinding.setText.setText(formatter.format(mData.getSys().getSunset() * 1000L));
@@ -87,34 +89,79 @@ public class WeatherFragment extends Fragment {
         imageView.setImageBitmap(sideInversionImg);
 
         mBinding.weatherText.setText(String.valueOf(weather));
-        mBinding.tempText.setText(String.format("%.2f ℃",mData.getMain().getTemp() - 273.15));
+        mBinding.tempText.setText(String.format("%.2f ℃", mData.getMain().getTemp() - 273.15));
         mBinding.pressureText.setText(String.valueOf(mData.getMain().getPressure()));
         mBinding.humidityText.setText(String.valueOf(mData.getMain().getHumidity() + " %"));
-        mBinding.visibilityText.setText(String.format("%s m",mData.getVisibility()));
+        mBinding.visibilityText.setText(String.format("%s m", mData.getVisibility()));
 
 
     }
 
-    public String getWeather(String data){
+    public String getWeather(String data) {
 
-        if(data.equals("01d") || data.equals("01n")) {
+        if (data.equals("01d") || data.equals("01n")) {
             mData.getWeather().get(0).setMain("맑은 날씨");
-        }else if(data.equals("02d") || data.equals("02n")) {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_sun);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.weather_clear128);
+            }
+        } else if (data.equals("02d") || data.equals("02n")) {
             mData.getWeather().get(0).setMain("구름 조금");
-        }else if(data.equals("03d") || data.equals("03n")) {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_clouds);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.weather_few_clouds128);
+            }
+        } else if (data.equals("03d") || data.equals("03n")) {
             mData.getWeather().get(0).setMain("많은 구름");
-        }else if(data.equals("04d") || data.equals("04n")) {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_many_clouds);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.many_cloud);
+            }
+        } else if (data.equals("04d") || data.equals("04n")) {
             mData.getWeather().get(0).setMain("먹구름");
-        }else if(data.equals("09d") || data.equals("09n")) {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_many_clouds);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.many_cloud);
+            }
+        } else if (data.equals("09d") || data.equals("09n")) {
             mData.getWeather().get(0).setMain("소량의 비");
-        }else if(data.equals("10d") || data.equals("10n")) {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_rain);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.weather_showers_scattered128);
+            }
+        } else if (data.equals("10d") || data.equals("10n")) {
             mData.getWeather().get(0).setMain("비");
-        }else if(data.equals("11d") || data.equals("11n")) {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_rain);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.weather_showers_scattered128);
+            }
+        } else if (data.equals("11d") || data.equals("11n")) {
             mData.getWeather().get(0).setMain("뇌우");
-        }else if(data.equals("13d") || data.equals("13n")) {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_storm);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.weather_storm128);
+            }
+        } else if (data.equals("13d") || data.equals("13n")) {
             mData.getWeather().get(0).setMain("눈");
-        }else {
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_snow);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.weather_snow128);
+            }
+        } else {
             mData.getWeather().get(0).setMain("안개");
+            if (mVer != 1) {
+                mBinding.titleWeatherImage.setImageResource(R.mipmap.ic_weather_fog);
+            } else {
+                mBinding.titleWeatherImage.setImageResource(R.drawable.weather_fog);
+            }
         }
         return mData.getWeather().get(0).getMain();
     }

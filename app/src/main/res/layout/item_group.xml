@@ -6,7 +6,7 @@
 
     <TextView
         android:id="@+id/dt_text"
-        android:background="#FFA4D1D6"
+        android:background="#b2dfdb"
         android:paddingStart="30sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

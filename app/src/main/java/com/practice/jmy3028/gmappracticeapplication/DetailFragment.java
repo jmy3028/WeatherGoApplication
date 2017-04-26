@@ -23,15 +23,17 @@ public class DetailFragment extends Fragment {
 
     private WeatherMain mResult;
     private Example mResult2;
+    private int mVer;
 
 
     public DetailFragment() {
     }
 
-    public static DetailFragment createDetailFragment(WeatherMain result, Example result2) {
+    public static DetailFragment createDetailFragment(WeatherMain result, Example result2, int ver) {
         Bundle bundle = new Bundle();
         bundle.putSerializable("result", result);
         bundle.putSerializable("result2", result2);
+        bundle.putInt("ver", ver);
 
         DetailFragment fragment = new DetailFragment();
         fragment.setArguments(bundle);
@@ -59,8 +61,9 @@ public class DetailFragment extends Fragment {
         if (getArguments() != null) {
             mResult = (WeatherMain) getArguments().getSerializable("result");
             mResult2 = (Example) getArguments().getSerializable("result2");
+            mVer = getArguments().getInt("ver");
 
-            weatherFragment = WeatherFragment.newInstance(mResult);
+            weatherFragment = WeatherFragment.newInstance(mResult, mVer);
             listFragment = ListFragment.newInstance(mResult2);
             DetailFragment.FragmentsPagerAdapter pagerAdapter = new DetailFragment.FragmentsPagerAdapter(getChildFragmentManager());
             viewPager.setAdapter(pagerAdapter);
