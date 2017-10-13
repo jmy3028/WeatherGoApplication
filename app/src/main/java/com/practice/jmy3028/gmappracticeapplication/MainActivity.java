@@ -7,7 +7,6 @@ import android.content.res.Configuration;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String TAG = MainActivity.class.getSimpleName();
     private GetApi mGetApi;
     private AdView mAdView;
+    private String mAAAA;
 
     private GoogleMap mMap;
     private Geocoder geocoder;
